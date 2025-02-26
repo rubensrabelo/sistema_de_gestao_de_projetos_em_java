@@ -4,7 +4,7 @@ import com.management.project.model.enums.StatusEnum;
 
 import java.time.Instant;
 
-public record ProjectOutputDto(
+public record ProjectResponseDTO(
         Long id,
         String name,
         StatusEnum status,
