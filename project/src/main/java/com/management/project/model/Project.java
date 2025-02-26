@@ -1,19 +1,22 @@
 package com.management.project.model;
 
 import com.management.project.model.enums.StatusEnum;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
+@Entity
+@Table(name = "tb_projects")
 public class Project implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private StatusEnum status;
