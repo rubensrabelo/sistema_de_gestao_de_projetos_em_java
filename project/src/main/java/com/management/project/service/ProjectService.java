@@ -5,8 +5,12 @@ import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.model.Project;
 import com.management.project.repository.ProjectRepository;
+import com.management.project.service.exceptions.DatabaseException;
+import com.management.project.service.exceptions.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,7 +33,7 @@ public class ProjectService {
 
     public ProjectResponseDTO findById(Long id) {
         Project entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         return modelMapper.map(entity, ProjectResponseDTO.class);
     }
 
@@ -41,7 +45,7 @@ public class ProjectService {
 
     public ProjectResponseDTO update(Long id, ProjectUpdateDTO updatedData) {
         Project entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         Project dataProject = modelMapper.map(updatedData, Project.class);
         updateData(entity, dataProject);
         repository.save(entity);
@@ -49,7 +53,13 @@ public class ProjectService {
     }
 
     public void deleteById(Long id) {
-        repository.deleteById(id);
+        try {
+            repository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException("Project not found");
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException(e.getMessage());
+        }
     }
 
     private void updateData(Project entity, Project dataProject) {
