@@ -19,6 +19,8 @@ public class Project implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+
+    @Enumerated(EnumType.STRING)
     private StatusEnum status;
     private Instant createdAt;
     private Instant updatedAt;
