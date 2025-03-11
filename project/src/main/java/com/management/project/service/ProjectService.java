@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -40,13 +41,17 @@ public class ProjectService {
     public ProjectResponseDTO findById(Long id) {
         Project entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-        return modelMapper.map(entity, ProjectResponseDTO.class);
+        ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
+        addHateoasLinks(dtoResponse);
+        return dtoResponse;
     }
 
     public ProjectResponseDTO create(ProjectCreateDTO dto) {
         Project entity = modelMapper.map(dto, Project.class);
         repository.save(entity);
-        return modelMapper.map(entity, ProjectResponseDTO.class);
+        ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
+        addHateoasLinks(dtoResponse);
+        return dtoResponse;
     }
 
     public ProjectResponseDTO update(Long id, ProjectUpdateDTO updatedData) {
@@ -55,7 +60,9 @@ public class ProjectService {
         Project dataProject = modelMapper.map(updatedData, Project.class);
         updateData(entity, dataProject);
         repository.save(entity);
-        return modelMapper.map(entity, ProjectResponseDTO.class);
+        ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
+        addHateoasLinks(dtoResponse);
+        return dtoResponse;
     }
 
     public void deleteById(Long id) {
@@ -73,7 +80,17 @@ public class ProjectService {
         entity.setStatus(dataProject.getStatus());
     }
 
-    private void addHateoasLinks(ProjectResponseDTO dtoResponde) {
-        dtoResponde.add(linkTo(methodOn(ProjectController.class).findAll()).withRel("findAll").withType("GET"));
+    private void addHateoasLinks(ProjectResponseDTO dto) {
+        Pageable defaultPageable = PageRequest.of(0, 10);
+        dto.add(linkTo(methodOn(ProjectController.class).findAll(defaultPageable)).withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(ProjectController.class).findById(dto.getId())).withSelfRel().withType("GET"));
+
+        ProjectCreateDTO dtoCreated = new ProjectCreateDTO(dto.getName(), dto.getStatus());
+        dto.add(linkTo(methodOn(ProjectController.class).create(dtoCreated)).withRel("create").withType("POST"));
+
+        ProjectUpdateDTO dtoUpdated = new ProjectUpdateDTO(dto.getName(), dto.getStatus());
+        dto.add(linkTo(methodOn(ProjectController.class).update(dto.getId(), dtoUpdated)).withRel("update").withType("PUT"));
+
+        dto.add(linkTo(methodOn(ProjectController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
     }
 }
