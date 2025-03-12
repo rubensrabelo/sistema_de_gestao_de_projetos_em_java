@@ -96,7 +96,7 @@ public interface ProjectControllerDocs {
 
     @Operation(summary = "Deletes a Project",
             description = "Deletes a specific project by their ID",
-            tags = {"projects"},
+            tags = {"Projects"},
             responses = {
                     @ApiResponse(
                             description = "No Content",

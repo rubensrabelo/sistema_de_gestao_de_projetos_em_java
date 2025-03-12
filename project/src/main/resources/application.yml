@@ -20,6 +20,6 @@ spring:
 #    com.management.product: DEBUG
 
 spring-doc:
-  paths-to-match: /products/**
+  paths-to-match: /v1/projects/**
   swagger-ui:
     use-root-path: true
