@@ -50,7 +50,9 @@ public class ProjectService {
     }
 
     public ProjectResponseDTO create(ProjectCreateDTO dto) {
+        System.out.println("dto: " + dto);
         Project entity = modelMapper.map(dto, Project.class);
+        System.out.println("Entity: " + entity.getName());
         repository.save(entity);
         ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
         addHateoasLinks(dtoResponse);
