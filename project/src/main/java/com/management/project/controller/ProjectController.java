@@ -8,6 +8,7 @@ import com.management.project.service.ProjectService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -27,7 +28,11 @@ public class ProjectController implements ProjectControllerDocs {
 
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
     @Override
-    public ResponseEntity<Page<ProjectResponseDTO>> findAll(@PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<ProjectResponseDTO>> findAll(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok().body(service.findAll(pageable));
     }
 
@@ -45,7 +50,7 @@ public class ProjectController implements ProjectControllerDocs {
     public ResponseEntity<ProjectResponseDTO> create(@RequestBody ProjectCreateDTO dto) {
         ProjectResponseDTO response = service.create(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(response.id()).toUri();
+                .buildAndExpand(response.getId()).toUri();
         return ResponseEntity.created(uri).body(response);
     }
 

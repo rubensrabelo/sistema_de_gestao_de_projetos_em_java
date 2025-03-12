@@ -33,8 +33,11 @@ public class ProjectService {
 
     public Page<ProjectResponseDTO> findAll(Pageable pageable) {
         var projects = repository.findAll(pageable)
-                .map(p -> modelMapper.map(p, ProjectResponseDTO.class));
-        projects.forEach(this::addHateoasLinks);
+                .map(prod ->{
+                    var dto = modelMapper.map(prod, ProjectResponseDTO.class);
+                    addHateoasLinks(dto);
+                    return dto;
+                });
         return projects;
     }
 
@@ -81,8 +84,7 @@ public class ProjectService {
     }
 
     private void addHateoasLinks(ProjectResponseDTO dto) {
-        Pageable defaultPageable = PageRequest.of(0, 10);
-        dto.add(linkTo(methodOn(ProjectController.class).findAll(defaultPageable)).withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(ProjectController.class).findAll(0, 10)).withRel("findAll").withType("GET"));
         dto.add(linkTo(methodOn(ProjectController.class).findById(dto.getId())).withSelfRel().withType("GET"));
 
         ProjectCreateDTO dtoCreated = new ProjectCreateDTO(dto.getName(), dto.getStatus());
