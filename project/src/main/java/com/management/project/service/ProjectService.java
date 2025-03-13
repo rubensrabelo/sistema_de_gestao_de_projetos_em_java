@@ -86,7 +86,7 @@ public class ProjectService {
     }
 
     private void addHateoasLinks(ProjectResponseDTO dto) {
-        dto.add(linkTo(methodOn(ProjectController.class).findAll(0, 10)).withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(ProjectController.class).findAll(0, 10, "desc")).withRel("findAll").withType("GET"));
         dto.add(linkTo(methodOn(ProjectController.class).findById(dto.getId())).withSelfRel().withType("GET"));
 
         ProjectCreateDTO dtoCreated = new ProjectCreateDTO(dto.getName(), dto.getStatus());
