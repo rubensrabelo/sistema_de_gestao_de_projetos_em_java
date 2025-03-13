@@ -1,12 +1,10 @@
 package com.management.project.data.dto.project;
 
 import com.management.project.model.enums.StatusEnum;
+import jakarta.validation.constraints.Size;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 public class ProjectUpdateDTO {
-    @NotBlank
     @Size(min = 3, max = 100)
     private String name;
     private StatusEnum status;
