@@ -2,6 +2,7 @@ package com.management.project.controller.exceptions.handler;
 
 import com.management.project.controller.exceptions.StandardError;
 import com.management.project.service.exceptions.DatabaseException;
+import com.management.project.service.exceptions.RequiredObjectIsNullException;
 import com.management.project.service.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,14 @@ public class ResourceExceptionHandler {
     @ExceptionHandler(DatabaseException.class)
     public ResponseEntity<StandardError> database(DatabaseException e, HttpServletRequest request) {
         String error = "Database error";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(RequiredObjectIsNullException.class)
+    public ResponseEntity<StandardError> requiredObjectIsNullException(RequiredObjectIsNullException e, HttpServletRequest request) {
+        String error = "Required Object Is Null";
         HttpStatus status = HttpStatus.BAD_REQUEST;
         StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);

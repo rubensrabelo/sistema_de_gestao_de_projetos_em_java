@@ -8,6 +8,5 @@ public record StandardError(
         String error,
         String message,
         String path
-
 ) {
 }

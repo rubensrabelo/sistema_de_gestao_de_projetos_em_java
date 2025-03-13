@@ -7,6 +7,7 @@ import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.model.Project;
 import com.management.project.repository.ProjectRepository;
 import com.management.project.service.exceptions.DatabaseException;
+import com.management.project.service.exceptions.RequiredObjectIsNullException;
 import com.management.project.service.exceptions.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +63,10 @@ public class ProjectService {
     }
 
     public ProjectResponseDTO create(ProjectCreateDTO dto) {
-        System.out.println("dto: " + dto);
+        if(dto == null)
+            throw new RequiredObjectIsNullException();
+
         Project entity = modelMapper.map(dto, Project.class);
-        System.out.println("Entity: " + entity.getName());
         repository.save(entity);
         ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
         addHateoasLinks(dtoResponse);
@@ -72,6 +74,9 @@ public class ProjectService {
     }
 
     public ProjectResponseDTO update(Long id, ProjectUpdateDTO updatedData) {
+        if(updatedData == null)
+            throw new RequiredObjectIsNullException();
+
         Project entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         Project dataProject = modelMapper.map(updatedData, Project.class);
