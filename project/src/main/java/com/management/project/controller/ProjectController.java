@@ -7,11 +7,12 @@ import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.service.ProjectService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class ProjectController implements ProjectControllerDocs {
 
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
     @Override
-    public ResponseEntity<Page<ProjectResponseDTO>> findAll(
+    public ResponseEntity<PagedModel<EntityModel<ProjectResponseDTO>>> findAll(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size,
             @RequestParam(value = "direction", defaultValue = "asc") String direction

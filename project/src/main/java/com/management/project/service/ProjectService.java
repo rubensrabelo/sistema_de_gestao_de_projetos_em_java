@@ -12,15 +12,16 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProjectService {
@@ -31,14 +32,25 @@ public class ProjectService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public Page<ProjectResponseDTO> findAll(Pageable pageable) {
+    @Autowired
+    PagedResourcesAssembler<ProjectResponseDTO> assembler;
+
+    public PagedModel<EntityModel<ProjectResponseDTO>> findAll(Pageable pageable) {
         var projects = repository.findAll(pageable)
                 .map(prod ->{
                     var dto = modelMapper.map(prod, ProjectResponseDTO.class);
                     addHateoasLinks(dto);
                     return dto;
                 });
-        return projects;
+        Link findAllLinks = WebMvcLinkBuilder.linkTo(
+                WebMvcLinkBuilder.methodOn(ProjectController.class)
+                        .findAll(
+                                pageable.getPageNumber(),
+                                pageable.getPageSize(),
+                                String.valueOf(pageable.getSort())
+                        )
+        ).withSelfRel();
+        return assembler.toModel(projects, findAllLinks);
     }
 
     public ProjectResponseDTO findById(Long id) {
