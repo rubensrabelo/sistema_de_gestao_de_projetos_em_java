@@ -1,9 +1,7 @@
 package com.management.project.controller.exceptions.handler;
 
 import com.management.project.controller.exceptions.StandardError;
-import com.management.project.service.exceptions.DatabaseException;
-import com.management.project.service.exceptions.RequiredObjectIsNullException;
-import com.management.project.service.exceptions.ResourceNotFoundException;
+import com.management.project.service.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +34,22 @@ public class ResourceExceptionHandler {
     @ExceptionHandler(RequiredObjectIsNullException.class)
     public ResponseEntity<StandardError> requiredObjectIsNullException(RequiredObjectIsNullException e, HttpServletRequest request) {
         String error = "Required Object Is Null";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(EmptyNameException.class)
+    public ResponseEntity<StandardError> emptyNameException(EmptyNameException e, HttpServletRequest request) {
+        String error = "Invalid name";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(InvalidNameSizeException.class)
+    public ResponseEntity<StandardError> invalidNameSizeException(InvalidNameSizeException e, HttpServletRequest request) {
+        String error = "Invalid name size";
         HttpStatus status = HttpStatus.BAD_REQUEST;
         StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
