@@ -6,9 +6,7 @@ import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.model.Project;
 import com.management.project.repository.ProjectRepository;
-import com.management.project.service.exceptions.DatabaseException;
-import com.management.project.service.exceptions.RequiredObjectIsNullException;
-import com.management.project.service.exceptions.ResourceNotFoundException;
+import com.management.project.service.exceptions.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -66,6 +64,13 @@ public class ProjectService {
         if(dto == null)
             throw new RequiredObjectIsNullException();
 
+        if(dto.getName() == null || dto.getName().isEmpty())
+            throw new EmptyNameException("The name cannot be null or blank.");
+
+        if(dto.getName().length() < 3 || dto.getName().length() > 100)
+            throw new InvalidNameSizeException("The name field must be between 3 and 100 characters.");
+
+
         Project entity = modelMapper.map(dto, Project.class);
         repository.save(entity);
         ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
@@ -76,6 +81,9 @@ public class ProjectService {
     public ProjectResponseDTO update(Long id, ProjectUpdateDTO updatedData) {
         if(updatedData == null)
             throw new RequiredObjectIsNullException();
+
+        if(updatedData.getName().length() < 3 || updatedData.getName().length() > 100)
+            throw new InvalidNameSizeException("The name field must be between 3 and 100 characters.");
 
         Project entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
