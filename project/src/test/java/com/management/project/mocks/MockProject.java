@@ -56,7 +56,7 @@ public class MockProject {
         ProjectResponseDTO projectDTO = new ProjectResponseDTO();
 
         projectDTO.setId((long) size);
-        projectDTO.setName("projectDTO " + size);
+        projectDTO.setName("ProjectDTO " + size);
 
         StatusEnum status = createStatus(size);
         projectDTO.setStatus(status);
