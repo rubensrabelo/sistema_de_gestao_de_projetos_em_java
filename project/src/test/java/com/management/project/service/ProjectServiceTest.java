@@ -7,6 +7,7 @@ import com.management.project.mocks.MockProject;
 import com.management.project.model.Project;
 import com.management.project.model.enums.StatusEnum;
 import com.management.project.repository.ProjectRepository;
+import com.management.project.service.exceptions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -16,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,9 +26,8 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.hateoas.server.RepresentationModelAssembler;
 
-import java.time.Instant;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -90,7 +92,6 @@ class ProjectServiceTest {
         assertFalse(result.getContent().isEmpty());
         assertEquals(5, result.getContent().size());
 
-        // Verificar se os links HATEOAS estão presentes
         result.getContent().forEach(entityModel -> {
             assertNotNull(entityModel.getContent());
             ProjectResponseDTO dto = entityModel.getContent();
@@ -125,13 +126,7 @@ class ProjectServiceTest {
     @Test
     void findById() {
         Project project = input.mockEntity(1);
-        ProjectResponseDTO dtoResponse = new ProjectResponseDTO();
-
-        dtoResponse.setId(project.getId());
-        dtoResponse.setName(project.getName());
-        dtoResponse.setStatus(project.getStatus());
-        dtoResponse.setCreatedAt(project.getCreatedAt());
-        dtoResponse.setUpdatedAt(project.getUpdatedAt());
+        ProjectResponseDTO dtoResponse = input.mockDTO(1);
 
         when(repository.findById(1L)).thenReturn(Optional.of(project));
         when(modelMapper.map(project, ProjectResponseDTO.class)).thenReturn(dtoResponse);
@@ -177,22 +172,34 @@ class ProjectServiceTest {
                 )
         );
 
-        assertEquals("Project 1", result.getName());
+        assertEquals("ProjectDTO 1", result.getName());
         assertEquals(StatusEnum.NOT_DONE, result.getStatus());
         assertNotNull(result.getCreatedAt());
         assertNotNull(result.getUpdatedAt());
     }
 
     @Test
+    void testFindByIdWithIdDoesNotExist() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.findById(1L)
+        );
+
+        String expectedMessage = "Project not found";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verify(repository, times(1)).findById(1L);
+        verifyNoInteractions(modelMapper);
+    }
+
+
+    @Test
     void create() {
         ProjectResponseDTO dtoResponse = input.mockDTO(1);
-        Project persisted = new Project();
-
-        persisted.setId(dtoResponse.getId());
-        persisted.setName(dtoResponse.getName());
-        persisted.setStatus(dtoResponse.getStatus());
-        persisted.setCreatedAt(Instant.now());
-        persisted.setUpdatedAt(Instant.now());
+        Project persisted = input.mockEntity(1);
 
         ProjectCreateDTO dtoCreate = new ProjectCreateDTO(dtoResponse.getName(), dtoResponse.getStatus());
 
@@ -248,15 +255,53 @@ class ProjectServiceTest {
     }
 
     @Test
+    void testCreateWithNullProject() {
+        Exception exception = assertThrows(
+                RequiredObjectIsNullException.class,
+                () -> service.create(null)
+        );
+
+        String expectedMessage = "Its is not allowed to persist a null object";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verifyNoMoreInteractions(repository, modelMapper);
+    }
+
+    @Test
+    void testCreateWithNullName() {
+        ProjectCreateDTO dtoCreate = new ProjectCreateDTO(null, StatusEnum.NOT_DONE);
+        Exception exception = assertThrows(
+                EmptyNameException.class,
+                () -> service.create(dtoCreate)
+        );
+
+        String expectedMessage = "The name cannot be null or blank.";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verifyNoMoreInteractions(repository, modelMapper);
+    }
+
+    @Test
+    void testCreateWithErrorSizeName() {
+        ProjectCreateDTO dtoCreate = new ProjectCreateDTO("Pr", StatusEnum.NOT_DONE);
+        Exception exception = assertThrows(
+                InvalidNameSizeException.class,
+                () -> service.create(dtoCreate)
+        );
+
+        String expectedMessage = "The name field must be between 3 and 100 characters.";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verifyNoMoreInteractions(repository, modelMapper);
+    }
+
+    @Test
     void update() {
         ProjectResponseDTO dtoResponse = input.mockDTO(1);
-        Project project = new Project();
-
-        project.setId(dtoResponse.getId());
-        project.setName(dtoResponse.getName());
-        project.setStatus(dtoResponse.getStatus());
-        project.setCreatedAt(Instant.now());
-        project.setUpdatedAt(Instant.now());
+        Project project = input.mockEntity(1);
 
         ProjectUpdateDTO dtoUpdate = new ProjectUpdateDTO(dtoResponse.getName(), dtoResponse.getStatus());
         Project persisted = project;
@@ -314,11 +359,91 @@ class ProjectServiceTest {
     }
 
     @Test
+    void testUpdateWithIdDoesNotExist() {
+        ProjectUpdateDTO dtoUpdate = new ProjectUpdateDTO("Updated Project", StatusEnum.NOT_DONE);
+
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.update(1L, dtoUpdate)
+        );
+
+        String expectedMessage = "Project not found";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verify(repository, times(1)).findById(1L);
+        verifyNoMoreInteractions(repository, modelMapper);
+    }
+
+    @Test
+    void testUpdateWithNullProject() {
+        Exception exception = assertThrows(
+                RequiredObjectIsNullException.class,
+                () -> service.update(1L, null)
+        );
+
+        String expectedMessage = "Its is not allowed to persist a null object";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verifyNoMoreInteractions(repository, modelMapper);
+    }
+
+    @Test
+    void testUpdateWithErrorSizeName() {
+        ProjectUpdateDTO dtoUpdate = new ProjectUpdateDTO("Pr", StatusEnum.NOT_DONE);
+        Exception exception = assertThrows(
+                InvalidNameSizeException.class,
+                () -> service.update(1L, dtoUpdate)
+        );
+
+        String expectedMessage = "The name field must be between 3 and 100 characters.";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verifyNoMoreInteractions(repository, modelMapper);
+    }
+
+    @Test
     void deleteById() {
 
         doNothing().when(repository).deleteById(1L);
 
         assertDoesNotThrow(() -> service.deleteById(1L));
+        verify(repository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteWithIdDoesNotExist() {
+        doThrow(new EmptyResultDataAccessException(1)).when(repository).deleteById(1L);
+
+        Exception exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.deleteById(1L)
+        );
+
+        String expectedMessage = "Project not found";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verify(repository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteWithDatabaseException() {
+        doThrow(new DataIntegrityViolationException("Database error")).when(repository).deleteById(1L);
+
+        Exception exception = assertThrows(
+                DatabaseException.class,
+                () -> service.deleteById(1L)
+        );
+
+        String expectedMessage = "Database error";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
         verify(repository, times(1)).deleteById(1L);
     }
 }

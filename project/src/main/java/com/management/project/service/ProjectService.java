@@ -106,8 +106,10 @@ public class ProjectService {
     }
 
     private void updateData(Project entity, Project dataProject) {
-        entity.setName(dataProject.getName());
-        entity.setStatus(dataProject.getStatus());
+        if(dataProject.getName() != null)
+            entity.setName(dataProject.getName());
+        if(dataProject.getStatus() != null)
+            entity.setStatus(dataProject.getStatus());
     }
 
     private void addHateoasLinks(ProjectResponseDTO dto) {
