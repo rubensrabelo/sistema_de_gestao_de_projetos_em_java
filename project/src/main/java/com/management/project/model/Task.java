@@ -6,12 +6,11 @@ import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tb_projects")
-public class Project implements Serializable {
+@Table(name = "tb_tasks")
+public class Task implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -26,15 +25,17 @@ public class Project implements Serializable {
     private Instant createdAt;
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Task> tasks;
+    @ManyToOne
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
 
-    public Project() {
+    public Task() {
     }
 
-    public Project(String name, StatusEnum status) {
+    public Task(String name, StatusEnum status, Project project) {
         this.name = name;
         this.status = status;
+        this.project = project;
     }
 
     @PrePersist
@@ -89,20 +90,18 @@ public class Project implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public void addTask(Task task) {
-        tasks.add(task);
-        task.setProject(this);
+    public Project getProject() {
+        return project;
     }
 
-    public void removeTask(Task task) {
-        tasks.remove(task);
-        task.setProject(null);
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Project project = (Project) o;
+        Task project = (Task) o;
         return Objects.equals(id, project.id) && Objects.equals(name, project.name) && status == project.status && Objects.equals(createdAt, project.createdAt) && Objects.equals(updatedAt, project.updatedAt);
     }
 
