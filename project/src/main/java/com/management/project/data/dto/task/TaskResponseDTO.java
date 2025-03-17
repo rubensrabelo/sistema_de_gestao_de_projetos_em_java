@@ -1,17 +1,14 @@
-package com.management.project.data.dto.project;
+package com.management.project.data.dto.task;
 
-import com.management.project.data.dto.task.TaskResponseDTO;
 import com.management.project.model.enums.StatusEnum;
 import org.springframework.hateoas.RepresentationModel;
-import org.yaml.snakeyaml.representer.Represent;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
-public class ProjectResponseDTO extends RepresentationModel<ProjectResponseDTO> implements Serializable {
+public class TaskResponseDTO extends RepresentationModel<TaskResponseDTO> implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -22,9 +19,7 @@ public class ProjectResponseDTO extends RepresentationModel<ProjectResponseDTO> 
     private Instant createdAt;
     private Instant updatedAt;
 
-    private List<TaskResponseDTO> tasks;
-
-    public ProjectResponseDTO() {
+    public TaskResponseDTO() {
     }
 
     public Long getId() {
@@ -67,24 +62,15 @@ public class ProjectResponseDTO extends RepresentationModel<ProjectResponseDTO> 
         this.updatedAt = updatedAt;
     }
 
-    public List<TaskResponseDTO> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(List<TaskResponseDTO> tasks) {
-        this.tasks = tasks;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        ProjectResponseDTO that = (ProjectResponseDTO) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && status == that.status && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt) && Objects.equals(tasks, that.tasks);
+        TaskResponseDTO that = (TaskResponseDTO) o;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && status == that.status && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, name, status, createdAt, updatedAt, tasks);
+        return Objects.hash(id, name, status, createdAt, updatedAt);
     }
 }
