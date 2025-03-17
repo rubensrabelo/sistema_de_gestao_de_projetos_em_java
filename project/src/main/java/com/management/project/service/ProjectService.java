@@ -35,7 +35,7 @@ public class ProjectService {
     PagedResourcesAssembler<ProjectResponseDTO> assembler;
 
     public PagedModel<EntityModel<ProjectResponseDTO>> findAll(Pageable pageable) {
-        var projects = repository.findAll(pageable)
+        var dtoResponse = repository.findAll(pageable)
                 .map(prod ->{
                     var dto = modelMapper.map(prod, ProjectResponseDTO.class);
                     addHateoasLinks(dto);
@@ -49,7 +49,7 @@ public class ProjectService {
                                 String.valueOf(pageable.getSort())
                         )
         ).withSelfRel();
-        return assembler.toModel(projects, findAllLinks);
+        return assembler.toModel(dtoResponse, findAllLinks);
     }
 
     public ProjectResponseDTO findById(Long id) {

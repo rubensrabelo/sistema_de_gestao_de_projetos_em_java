@@ -1,16 +1,23 @@
 package com.management.project.service;
 
 import com.management.project.controller.ProjectController;
+import com.management.project.controller.TaskController;
 import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
+import com.management.project.data.dto.task.TaskCreateDTO;
+import com.management.project.data.dto.task.TaskResponseDTO;
+import com.management.project.data.dto.task.TaskUpdateDTO;
 import com.management.project.model.Project;
+import com.management.project.model.Task;
 import com.management.project.repository.ProjectRepository;
+import com.management.project.repository.TaskRepository;
 import com.management.project.service.exceptions.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -26,41 +33,55 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Service
 public class TaskService {
 
-    @Autowired
-    private ProjectRepository repository;
-
-    @Autowired
+    private TaskRepository taskRepository;
+    private ProjectRepository projectRepository;
     private ModelMapper modelMapper;
-
-    @Autowired
     PagedResourcesAssembler<ProjectResponseDTO> assembler;
 
-    public PagedModel<EntityModel<ProjectResponseDTO>> findAll(Pageable pageable) {
-        var projects = repository.findAll(pageable)
-                .map(prod ->{
-                    var dto = modelMapper.map(prod, ProjectResponseDTO.class);
+    public TaskService(
+            TaskRepository taskRepository,
+            ProjectRepository projectRepository,
+            ModelMapper modelMapper,
+            PagedResourcesAssembler<ProjectResponseDTO> assembler
+    ) {
+        this.taskRepository = taskRepository;
+        this.projectRepository = projectRepository;
+        this.modelMapper = modelMapper;
+        this.assembler = assembler;
+    }
+
+    public PagedModel<EntityModel<TaskResponseDTO>> findAllTasksWithIdProject(Long idProject, Pageable pageable) {
+        Project project = projectRepository.findById(idProject)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        var dtoResponse = taskRepository.findAllByProjectId(project.getId(), pageable)
+                .map(task ->{
+                    var dto = modelMapper.map(task, TaskResponseDTO.class);
                     addHateoasLinks(dto);
                     return dto;
                 });
+
         Link findAllLinks = WebMvcLinkBuilder.linkTo(
-                WebMvcLinkBuilder.methodOn(ProjectController.class)
+                WebMvcLinkBuilder.methodOn(TaskController.class)
                         .findAll(
                                 pageable.getPageNumber(),
                                 pageable.getPageSize(),
                                 String.valueOf(pageable.getSort())
                         )
         ).withSelfRel();
-        return assembler.toModel(projects, findAllLinks);
+        return assembler.toModel(dtoResponse, findAllLinks);
     }
 
-    public ProjectResponseDTO findById(Long id) {
-        Project entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-        ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
+    public TaskResponseDTO findById(Long id) {
+        Task entity = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));;
+
+        TaskResponseDTO dtoResponse = modelMapper.map(entity, TaskResponseDTO.class);
         addHateoasLinks(dtoResponse);
         return dtoResponse;
     }
 
+    // Aqui
     public ProjectResponseDTO create(ProjectCreateDTO dto) {
         if(dto == null)
             throw new RequiredObjectIsNullException();
@@ -113,16 +134,16 @@ public class TaskService {
             entity.setStatus(dataProject.getStatus());
     }
 
-    private void addHateoasLinks(ProjectResponseDTO dto) {
-        dto.add(linkTo(methodOn(ProjectController.class).findAll(0, 10, "desc")).withRel("findAll").withType("GET"));
-        dto.add(linkTo(methodOn(ProjectController.class).findById(dto.getId())).withSelfRel().withType("GET"));
+    private void addHateoasLinks(TaskResponseDTO dto) {
+        dto.add(linkTo(methodOn(TaskController.class).findAll(0, 10, "desc")).withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(TaskController.class).findById(dto.getId())).withSelfRel().withType("GET"));
 
-        ProjectCreateDTO dtoCreated = new ProjectCreateDTO(dto.getName(), dto.getStatus());
-        dto.add(linkTo(methodOn(ProjectController.class).create(dtoCreated)).withRel("create").withType("POST"));
+        TaskCreateDTO dtoCreated = new TaskCreateDTO(dto.getName(), dto.getStatus());
+        dto.add(linkTo(methodOn(TaskController.class).create(dtoCreated)).withRel("create").withType("POST"));
 
-        ProjectUpdateDTO dtoUpdated = new ProjectUpdateDTO(dto.getName(), dto.getStatus());
-        dto.add(linkTo(methodOn(ProjectController.class).update(dto.getId(), dtoUpdated)).withRel("update").withType("PUT"));
+        TaskUpdateDTO dtoUpdated = new TaskUpdateDTO(dto.getName(), dto.getStatus());
+        dto.add(linkTo(methodOn(TaskController.class).update(dto.getId(), dtoUpdated)).withRel("update").withType("PUT"));
 
-        dto.add(linkTo(methodOn(ProjectController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
+        dto.add(linkTo(methodOn(TaskController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
     }
 }
