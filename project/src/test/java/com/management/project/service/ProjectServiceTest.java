@@ -61,17 +61,17 @@ class ProjectServiceTest {
 
     @Test
     void findAll() {
-        List<Project> projects = input.mockListEntity(5);
-        List<ProjectResponseDTO> projectsDTO = input.mockListDTO(5);
+        List<Project> entities = input.mockListEntity(5);
+        List<ProjectResponseDTO> dtoResponse = input.mockListDTO(5);
 
-        Page<Project> page = new PageImpl<>(projects, PageRequest.of(0, 10), projects.size());
+        Page<Project> page = new PageImpl<>(entities, PageRequest.of(0, 10), entities.size());
 
         when(repository.findAll(any(PageRequest.class))).thenReturn(page);
-        for (int i = 0; i < projects.size(); i++) {
-            when(modelMapper.map(projects.get(i), ProjectResponseDTO.class)).thenReturn(projectsDTO.get(i));
+        for (int i = 0; i < entities.size(); i++) {
+            when(modelMapper.map(entities.get(i), ProjectResponseDTO.class)).thenReturn(dtoResponse.get(i));
         }
 
-        List<EntityModel<ProjectResponseDTO>> entityModels = projectsDTO.stream()
+        List<EntityModel<ProjectResponseDTO>> entityModels = dtoResponse.stream()
                 .map(dto -> EntityModel.of(dto,
                         Link.of("/v1/projects/" + dto.getId()).withSelfRel(),
                         Link.of("/v1/projects/").withRel("findAll"),
@@ -82,7 +82,7 @@ class ProjectServiceTest {
                 .collect(Collectors.toList());
 
         PagedModel<EntityModel<ProjectResponseDTO>> pagedModel = PagedModel.of(entityModels,
-                new PagedModel.PageMetadata(10, 0, projectsDTO.size()));
+                new PagedModel.PageMetadata(10, 0, dtoResponse.size()));
 
         when(assembler.toModel(any(Page.class), any(Link.class))).thenReturn(pagedModel);
 
@@ -125,11 +125,11 @@ class ProjectServiceTest {
 
     @Test
     void findById() {
-        Project project = input.mockEntity(1);
+        Project entity = input.mockEntity(1);
         ProjectResponseDTO dtoResponse = input.mockDTO(1);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(project));
-        when(modelMapper.map(project, ProjectResponseDTO.class)).thenReturn(dtoResponse);
+        when(repository.findById(1L)).thenReturn(Optional.of(entity));
+        when(modelMapper.map(entity, ProjectResponseDTO.class)).thenReturn(dtoResponse);
 
         var result = service.findById(1L);
 
@@ -137,45 +137,20 @@ class ProjectServiceTest {
         assertNotNull(result.getId());
         assertNotNull(result.getLinks());
 
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("self")
-                        && link.getHref().endsWith("/v1/projects/" + project.getId())
-                        && link.getType().equals("GET")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("findAll")
-                        && link.getHref().endsWith("/v1/projects/")
-                        && link.getType().equals("GET")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("create")
-                        && link.getHref().endsWith("/v1/projects/")
-                        && link.getType().equals("POST")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("update")
-                        && link.getHref().endsWith("/v1/projects/" + project.getId())
-                        && link.getType().equals("PUT")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("delete")
-                        && link.getHref().endsWith("/v1/projects/" + project.getId())
-                        && link.getType().equals("DELETE")
-                )
-        );
-
         assertEquals("ProjectDTO 1", result.getName());
         assertEquals(StatusEnum.NOT_DONE, result.getStatus());
+
         assertNotNull(result.getCreatedAt());
         assertNotNull(result.getUpdatedAt());
+
+        assertLinkExists(result, "self", "/v1/projects/" + dtoResponse.getId(), "GET");
+        assertLinkExists(result, "findAll", "/v1/projects/", "GET");
+        assertLinkExists(result, "create", "/v1/projects/", "POST");
+        assertLinkExists(result, "update", "/v1/projects/" + dtoResponse.getId(), "PUT");
+        assertLinkExists(result, "delete", "/v1/projects/" + dtoResponse.getId(), "DELETE");
+
+        verify(repository, times(1)).findById(1L);
+        verify(modelMapper, times(1)).map(entity, ProjectResponseDTO.class);
     }
 
     @Test
@@ -200,7 +175,6 @@ class ProjectServiceTest {
     void create() {
         ProjectResponseDTO dtoResponse = input.mockDTO(1);
         Project persisted = input.mockEntity(1);
-
         ProjectCreateDTO dtoCreate = new ProjectCreateDTO(dtoResponse.getName(), dtoResponse.getStatus());
 
         when(modelMapper.map(dtoCreate, Project.class)).thenReturn(persisted);
@@ -213,45 +187,21 @@ class ProjectServiceTest {
         assertNotNull(result.getId());
         assertNotNull(result.getLinks());
 
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("self")
-                        && link.getHref().endsWith("/v1/projects/" + dtoResponse.getId())
-                        && link.getType().equals("GET")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("findAll")
-                        && link.getHref().endsWith("/v1/projects/")
-                        && link.getType().equals("GET")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("create")
-                        && link.getHref().endsWith("/v1/projects/")
-                        && link.getType().equals("POST")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("update")
-                        && link.getHref().endsWith("/v1/projects/" + dtoResponse.getId())
-                        && link.getType().equals("PUT")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("delete")
-                        && link.getHref().endsWith("/v1/projects/" + dtoResponse.getId())
-                        && link.getType().equals("DELETE")
-                )
-        );
-
         assertEquals("ProjectDTO 1", result.getName());
         assertEquals(StatusEnum.NOT_DONE, result.getStatus());
+
         assertNotNull(result.getCreatedAt());
         assertNotNull(result.getUpdatedAt());
+
+        assertLinkExists(result, "self", "/v1/projects/" + dtoResponse.getId(), "GET");
+        assertLinkExists(result, "findAll", "/v1/projects/", "GET");
+        assertLinkExists(result, "create", "/v1/projects/", "POST");
+        assertLinkExists(result, "update", "/v1/projects/" + dtoResponse.getId(), "PUT");
+        assertLinkExists(result, "delete", "/v1/projects/" + dtoResponse.getId(), "DELETE");
+
+        verify(modelMapper, times(1)).map(dtoCreate, Project.class);
+        verify(repository, times(1)).save(persisted);
+        verify(modelMapper, times(1)).map(persisted, ProjectResponseDTO.class);
     }
 
     @Test
@@ -302,14 +252,12 @@ class ProjectServiceTest {
     void update() {
         ProjectResponseDTO dtoResponse = input.mockDTO(1);
         Project project = input.mockEntity(1);
-
         ProjectUpdateDTO dtoUpdate = new ProjectUpdateDTO(dtoResponse.getName(), dtoResponse.getStatus());
-        Project persisted = project;
 
         when(repository.findById(1L)).thenReturn(Optional.of(project));
         when(modelMapper.map(dtoUpdate, Project.class)).thenReturn(project);
-        when(repository.save(project)).thenReturn(persisted);
-        when(modelMapper.map(persisted, ProjectResponseDTO.class)).thenReturn(dtoResponse);
+        when(repository.save(project)).thenReturn(project);
+        when(modelMapper.map(project, ProjectResponseDTO.class)).thenReturn(dtoResponse);
 
         var result = service.update(1L, dtoUpdate);
 
@@ -317,45 +265,22 @@ class ProjectServiceTest {
         assertNotNull(result.getId());
         assertNotNull(result.getLinks());
 
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("self")
-                        && link.getHref().endsWith("/v1/projects/" + dtoResponse.getId())
-                        && link.getType().equals("GET")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("findAll")
-                        && link.getHref().endsWith("/v1/projects/")
-                        && link.getType().equals("GET")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("create")
-                        && link.getHref().endsWith("/v1/projects/")
-                        && link.getType().equals("POST")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("update")
-                        && link.getHref().endsWith("/v1/projects/" + dtoResponse.getId())
-                        && link.getType().equals("PUT")
-                )
-        );
-
-        assertNotNull(result.getLinks().stream()
-                .anyMatch(link -> link.getRel().value().equals("delete")
-                        && link.getHref().endsWith("/v1/projects/" + dtoResponse.getId())
-                        && link.getType().equals("DELETE")
-                )
-        );
-
         assertEquals("ProjectDTO 1", result.getName());
         assertEquals(StatusEnum.NOT_DONE, result.getStatus());
+
         assertNotNull(result.getCreatedAt());
         assertNotNull(result.getUpdatedAt());
+
+        assertLinkExists(result, "self", "/v1/projects/" + dtoResponse.getId(), "GET");
+        assertLinkExists(result, "findAll", "/v1/projects/", "GET");
+        assertLinkExists(result, "create", "/v1/projects/", "POST");
+        assertLinkExists(result, "update", "/v1/projects/" + dtoResponse.getId(), "PUT");
+        assertLinkExists(result, "delete", "/v1/projects/" + dtoResponse.getId(), "DELETE");
+
+        verify(repository, times(1)).findById(1L);
+        verify(modelMapper, times(1)).map(dtoUpdate, Project.class);
+        verify(repository, times(1)).save(project);
+        verify(modelMapper, times(1)).map(project, ProjectResponseDTO.class);
     }
 
     @Test
@@ -445,5 +370,13 @@ class ProjectServiceTest {
 
         assertTrue(actualMessage.contains(expectedMessage));
         verify(repository, times(1)).deleteById(1L);
+    }
+
+    private void assertLinkExists(ProjectResponseDTO dto, String rel, String href, String type) {
+        dto.getLinks().stream()
+                .anyMatch(link -> link.getRel().value().equals(rel)
+                        && link.getHref().endsWith(href)
+                        && link.getType().equals(type)
+                );
     }
 }
