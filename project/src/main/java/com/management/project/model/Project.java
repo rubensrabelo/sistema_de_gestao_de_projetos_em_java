@@ -103,11 +103,11 @@ public class Project implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Project project = (Project) o;
-        return Objects.equals(id, project.id) && Objects.equals(name, project.name) && status == project.status && Objects.equals(createdAt, project.createdAt) && Objects.equals(updatedAt, project.updatedAt);
+        return Objects.equals(id, project.id) && Objects.equals(name, project.name) && status == project.status && Objects.equals(createdAt, project.createdAt) && Objects.equals(updatedAt, project.updatedAt) && Objects.equals(tasks, project.tasks);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, status, createdAt, updatedAt);
+        return Objects.hash(id, name, status, createdAt, updatedAt, tasks);
     }
 }
