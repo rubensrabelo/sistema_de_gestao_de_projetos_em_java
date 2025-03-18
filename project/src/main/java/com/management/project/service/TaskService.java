@@ -123,7 +123,7 @@ public class TaskService {
         dto.add(linkTo(methodOn(TaskController.class).findAll(0, 10, "desc")).withRel("findAll").withType("GET"));
         dto.add(linkTo(methodOn(TaskController.class).findById(dto.getId())).withSelfRel().withType("GET"));
 
-        TaskCreateDTO dtoCreated = new TaskCreateDTO(dto.getName(), dto.getStatus());
+        TaskCreateDTO dtoCreated = new TaskCreateDTO(dto.getName(), dto.getStatus(), dto.getProjectId());
         dto.add(linkTo(methodOn(TaskController.class).create(dtoCreated)).withRel("create").withType("POST"));
 
         TaskUpdateDTO dtoUpdated = new TaskUpdateDTO(dto.getName(), dto.getStatus());

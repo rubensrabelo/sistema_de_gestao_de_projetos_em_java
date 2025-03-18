@@ -3,6 +3,7 @@ package com.management.project.controller.docs;
 import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
+import com.management.project.data.dto.task.TaskResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,11 +35,11 @@ public interface TaskControllerDocs {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
             }
     )
-    ResponseEntity<ProjectResponseDTO> findById(@PathVariable("id") Long id);
+    ResponseEntity<TaskResponseDTO> findById(@PathVariable("id") Long id);
 
-    @Operation(summary = "Adds a new Project",
-            description = "Adds a new Project by passing in a JSON representation of the project.",
-            tags = {"Projects"},
+    @Operation(summary = "Adds a new Task",
+            description = "Adds a new task by passing in a JSON representation of the project.",
+            tags = {"Tasks"},
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -50,11 +51,11 @@ public interface TaskControllerDocs {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
             }
     )
-    ResponseEntity<ProjectResponseDTO> create(@RequestBody ProjectCreateDTO person);
+    ResponseEntity<TaskResponseDTO> create(@RequestBody TaskResponseDTO person);
 
-    @Operation(summary = "Updates a project's information",
-            description = "Updates a project's information by passing in a JSON representation of the updated person.",
-            tags = {"Projects"},
+    @Operation(summary = "Updates a task's information",
+            description = "Updates a task's information by passing in a JSON representation of the updated person.",
+            tags = {"Tasks"},
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -68,11 +69,11 @@ public interface TaskControllerDocs {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
             }
     )
-    ResponseEntity<ProjectResponseDTO> update(@PathVariable("id") Long id, @RequestBody ProjectUpdateDTO person);
+    ResponseEntity<TaskResponseDTO> update(@PathVariable("id") Long id, @RequestBody TaskResponseDTO person);
 
-    @Operation(summary = "Deletes a Project",
-            description = "Deletes a specific project by their ID",
-            tags = {"Projects"},
+    @Operation(summary = "Deletes a Task",
+            description = "Deletes a specific task by their ID",
+            tags = {"Tasks"},
             responses = {
                     @ApiResponse(
                             description = "No Content",
