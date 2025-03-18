@@ -1,21 +1,16 @@
 package com.management.project.controller.docs;
 
-import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
-import com.management.project.data.dto.project.ProjectUpdateDTO;
+import com.management.project.data.dto.task.TaskCreateDTO;
 import com.management.project.data.dto.task.TaskResponseDTO;
+import com.management.project.data.dto.task.TaskUpdateDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 public interface TaskControllerDocs {
 
@@ -51,7 +46,7 @@ public interface TaskControllerDocs {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
             }
     )
-    ResponseEntity<TaskResponseDTO> create(@RequestBody TaskResponseDTO person);
+    ResponseEntity<TaskResponseDTO> create(@RequestBody TaskCreateDTO dtoCreate);
 
     @Operation(summary = "Updates a task's information",
             description = "Updates a task's information by passing in a JSON representation of the updated person.",
@@ -69,7 +64,7 @@ public interface TaskControllerDocs {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
             }
     )
-    ResponseEntity<TaskResponseDTO> update(@PathVariable("id") Long id, @RequestBody TaskResponseDTO person);
+    ResponseEntity<TaskResponseDTO> update(@PathVariable("id") Long id, @RequestBody TaskUpdateDTO dtoUpdate);
 
     @Operation(summary = "Deletes a Task",
             description = "Deletes a specific task by their ID",

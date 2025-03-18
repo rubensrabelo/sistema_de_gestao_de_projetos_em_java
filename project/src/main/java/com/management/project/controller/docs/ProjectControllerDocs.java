@@ -76,7 +76,7 @@ public interface ProjectControllerDocs {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
             }
     )
-    ResponseEntity<ProjectResponseDTO> create(@RequestBody ProjectCreateDTO person);
+    ResponseEntity<ProjectResponseDTO> create(@RequestBody ProjectCreateDTO dtoCreate);
 
     @Operation(summary = "Updates a project's information",
             description = "Updates a project's information by passing in a JSON representation of the updated person.",
@@ -94,7 +94,7 @@ public interface ProjectControllerDocs {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
             }
     )
-    ResponseEntity<ProjectResponseDTO> update(@PathVariable("id") Long id, @RequestBody ProjectUpdateDTO person);
+    ResponseEntity<ProjectResponseDTO> update(@PathVariable("id") Long id, @RequestBody ProjectUpdateDTO dtoUpdate);
 
     @Operation(summary = "Deletes a Project",
             description = "Deletes a specific project by their ID",

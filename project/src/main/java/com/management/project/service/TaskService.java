@@ -1,8 +1,6 @@
 package com.management.project.service;
 
-import com.management.project.controller.ProjectController;
 import com.management.project.controller.TaskController;
-import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.data.dto.task.TaskCreateDTO;
@@ -14,16 +12,9 @@ import com.management.project.repository.ProjectRepository;
 import com.management.project.repository.TaskRepository;
 import com.management.project.service.exceptions.*;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.PagedModel;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -79,13 +70,13 @@ public class TaskService {
 
         taskRepository.save(entity);
 
-        ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
+        TaskResponseDTO dtoResponse = modelMapper.map(entity, TaskResponseDTO.class);
         addHateoasLinks(dtoResponse);
 
         return dtoResponse;
     }
 
-    public ProjectResponseDTO update(Long id, ProjectUpdateDTO updatedData) {
+    public TaskResponseDTO update(Long id, TaskUpdateDTO updatedData) {
         if(updatedData.getName().length() < 3 || updatedData.getName().length() > 100)
             throw new InvalidNameSizeException("The name task must be between 3 and 100 characters.");
 
@@ -96,7 +87,7 @@ public class TaskService {
         updateData(entity, dataTask);
         taskRepository.save(entity);
 
-        ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
+        TaskResponseDTO dtoResponse = modelMapper.map(entity, TaskResponseDTO.class);
         addHateoasLinks(dtoResponse);
 
         return dtoResponse;
@@ -120,7 +111,6 @@ public class TaskService {
     }
 
     private void addHateoasLinks(TaskResponseDTO dto) {
-        dto.add(linkTo(methodOn(TaskController.class).findAll(0, 10, "desc")).withRel("findAll").withType("GET"));
         dto.add(linkTo(methodOn(TaskController.class).findById(dto.getId())).withSelfRel().withType("GET"));
 
         TaskCreateDTO dtoCreated = new TaskCreateDTO(dto.getName(), dto.getStatus(), dto.getProjectId());
