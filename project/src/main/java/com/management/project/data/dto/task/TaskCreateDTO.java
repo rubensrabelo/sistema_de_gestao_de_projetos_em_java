@@ -1,5 +1,6 @@
 package com.management.project.data.dto.task;
 
+import com.management.project.model.Project;
 import com.management.project.model.enums.StatusEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,9 +14,13 @@ public class TaskCreateDTO {
     private String name;
     private StatusEnum status;
 
-    public TaskCreateDTO(String name, StatusEnum status) {
+    @NotNull
+    private Long projectId;
+
+    public TaskCreateDTO(String name, StatusEnum status, Long projectId) {
         this.name = name;
         this.status = status;
+        this.projectId = projectId;
     }
 
     public String getName() {
@@ -32,5 +37,13 @@ public class TaskCreateDTO {
 
     public void setStatus(StatusEnum status) {
         this.status = status;
+    }
+
+    public Long getProjectId() {
+        return this.projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 }

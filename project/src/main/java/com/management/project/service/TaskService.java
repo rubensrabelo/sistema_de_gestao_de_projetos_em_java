@@ -50,28 +50,6 @@ public class TaskService {
         this.assembler = assembler;
     }
 
-    public PagedModel<EntityModel<TaskResponseDTO>> findAllTasksWithIdProject(Long idProject, Pageable pageable) {
-        Project project = projectRepository.findById(idProject)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-
-        var dtoResponse = taskRepository.findAllByProjectId(project.getId(), pageable)
-                .map(task ->{
-                    var dto = modelMapper.map(task, TaskResponseDTO.class);
-                    addHateoasLinks(dto);
-                    return dto;
-                });
-
-        Link findAllLinks = WebMvcLinkBuilder.linkTo(
-                WebMvcLinkBuilder.methodOn(TaskController.class)
-                        .findAll(
-                                pageable.getPageNumber(),
-                                pageable.getPageSize(),
-                                String.valueOf(pageable.getSort())
-                        )
-        ).withSelfRel();
-        return assembler.toModel(dtoResponse, findAllLinks);
-    }
-
     public TaskResponseDTO findById(Long id) {
         Task entity = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));;
@@ -81,53 +59,60 @@ public class TaskService {
         return dtoResponse;
     }
 
-    // Aqui
-    public ProjectResponseDTO create(ProjectCreateDTO dto) {
-        if(dto == null)
-            throw new RequiredObjectIsNullException();
+    public TaskResponseDTO create(TaskCreateDTO dto) {
+        if(dto.getProjectId() == null) {
+            throw new NullForeignKeyException("Project id is required");
+        }
+
+        Project project = projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         if(dto.getName() == null || dto.getName().isEmpty())
-            throw new EmptyNameException("The name cannot be null or blank.");
+            throw new EmptyNameException("The name task cannot be null or blank.");
 
         if(dto.getName().length() < 3 || dto.getName().length() > 100)
-            throw new InvalidNameSizeException("The name field must be between 3 and 100 characters.");
+            throw new InvalidNameSizeException("The name task field must be between 3 and 100 characters.");
 
 
-        Project entity = modelMapper.map(dto, Project.class);
-        repository.save(entity);
+        Task entity = modelMapper.map(dto, Task.class);
+        entity.setProject(project);
+
+        taskRepository.save(entity);
+
         ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
         addHateoasLinks(dtoResponse);
+
         return dtoResponse;
     }
 
     public ProjectResponseDTO update(Long id, ProjectUpdateDTO updatedData) {
-        if(updatedData == null)
-            throw new RequiredObjectIsNullException();
-
         if(updatedData.getName().length() < 3 || updatedData.getName().length() > 100)
-            throw new InvalidNameSizeException("The name field must be between 3 and 100 characters.");
+            throw new InvalidNameSizeException("The name task must be between 3 and 100 characters.");
 
-        Project entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-        Project dataProject = modelMapper.map(updatedData, Project.class);
-        updateData(entity, dataProject);
-        repository.save(entity);
+        Task entity = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+        Task dataTask = modelMapper.map(updatedData, Task.class);
+
+        updateData(entity, dataTask);
+        taskRepository.save(entity);
+
         ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
         addHateoasLinks(dtoResponse);
+
         return dtoResponse;
     }
 
     public void deleteById(Long id) {
         try {
-            repository.deleteById(id);
+            taskRepository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException("Project not found");
+            throw new ResourceNotFoundException("Task not found");
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException(e.getMessage());
         }
     }
 
-    private void updateData(Project entity, Project dataProject) {
+    private void updateData(Task entity, Task dataProject) {
         if(dataProject.getName() != null)
             entity.setName(dataProject.getName());
         if(dataProject.getStatus() != null)
