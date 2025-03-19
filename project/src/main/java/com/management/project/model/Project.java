@@ -26,7 +26,7 @@ public class Project implements Serializable {
     private Instant createdAt;
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "project")
     private List<Task> tasks;
 
     public Project() {
@@ -87,6 +87,14 @@ public class Project implements Serializable {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
     }
 
     public void addTask(Task task) {

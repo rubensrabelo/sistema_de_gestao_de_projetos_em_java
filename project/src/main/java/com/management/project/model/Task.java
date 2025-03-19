@@ -18,6 +18,7 @@ public class Task implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -26,7 +27,7 @@ public class Task implements Serializable {
     private Instant updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
+    @JoinColumn(name = "project_id")
     private Project project;
 
     public Task() {

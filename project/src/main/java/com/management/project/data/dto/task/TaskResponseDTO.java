@@ -18,7 +18,6 @@ public class TaskResponseDTO extends RepresentationModel<TaskResponseDTO> implem
     private StatusEnum status;
     private Instant createdAt;
     private Instant updatedAt;
-    private Long projectId;
 
     public TaskResponseDTO() {
     }
@@ -63,24 +62,16 @@ public class TaskResponseDTO extends RepresentationModel<TaskResponseDTO> implem
         this.updatedAt = updatedAt;
     }
 
-    public Long getProjectId() {
-        return this.projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         TaskResponseDTO that = (TaskResponseDTO) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && status == that.status && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt) && Objects.equals(projectId, that.projectId);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && status == that.status && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, name, status, createdAt, updatedAt, projectId);
+        return Objects.hash(super.hashCode(), id, name, status, createdAt, updatedAt);
     }
 }

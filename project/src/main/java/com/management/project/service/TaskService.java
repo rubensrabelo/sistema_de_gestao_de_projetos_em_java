@@ -8,15 +8,19 @@ import com.management.project.data.dto.task.TaskResponseDTO;
 import com.management.project.data.dto.task.TaskUpdateDTO;
 import com.management.project.model.Project;
 import com.management.project.model.Task;
+import com.management.project.model.enums.StatusEnum;
 import com.management.project.repository.ProjectRepository;
 import com.management.project.repository.TaskRepository;
 import com.management.project.service.exceptions.*;
+import jakarta.persistence.EntityManager;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -29,6 +33,7 @@ public class TaskService {
     private ProjectRepository projectRepository;
     private ModelMapper modelMapper;
     PagedResourcesAssembler<ProjectResponseDTO> assembler;
+    private EntityManager entityManager;
 
     public TaskService(
             TaskRepository taskRepository,
@@ -51,14 +56,12 @@ public class TaskService {
         return dtoResponse;
     }
 
-    // vou colocar o id do projeto na url
-    public TaskResponseDTO create(TaskCreateDTO dto) {
+   public TaskResponseDTO create(TaskCreateDTO dto) {
         if(dto.getProjectId() == null) {
             throw new NullForeignKeyException("Project id is required");
         }
 
-        Project project = projectRepository.findById(dto.getProjectId())
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+        Project project = isProjectValid(dto.getProjectId());
 
         if(dto.getName() == null || dto.getName().isEmpty())
             throw new EmptyNameException("The name task cannot be null or blank.");
@@ -66,9 +69,7 @@ public class TaskService {
         if(dto.getName().length() < 3 || dto.getName().length() > 100)
             throw new InvalidNameSizeException("The name task field must be between 3 and 100 characters.");
 
-
-        Task entity = modelMapper.map(dto, Task.class);
-        entity.setProject(project);
+        Task entity = new Task(dto.getName(), dto.getStatus(), project);
 
         taskRepository.save(entity);
 
@@ -76,6 +77,11 @@ public class TaskService {
         addHateoasLinks(dtoResponse);
 
         return dtoResponse;
+    }
+
+    private Project isProjectValid(Long projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
     }
 
     public TaskResponseDTO update(Long id, TaskUpdateDTO updatedData) {
