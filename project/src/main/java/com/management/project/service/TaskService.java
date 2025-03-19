@@ -16,6 +16,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -50,6 +51,7 @@ public class TaskService {
         return dtoResponse;
     }
 
+    // vou colocar o id do projeto na url
     public TaskResponseDTO create(TaskCreateDTO dto) {
         if(dto.getProjectId() == null) {
             throw new NullForeignKeyException("Project id is required");
@@ -77,6 +79,9 @@ public class TaskService {
     }
 
     public TaskResponseDTO update(Long id, TaskUpdateDTO updatedData) {
+        if(updatedData.getName() == null || updatedData.getName().isEmpty())
+            throw new EmptyNameException("The name task cannot be null or blank.");
+
         if(updatedData.getName().length() < 3 || updatedData.getName().length() > 100)
             throw new InvalidNameSizeException("The name task must be between 3 and 100 characters.");
 

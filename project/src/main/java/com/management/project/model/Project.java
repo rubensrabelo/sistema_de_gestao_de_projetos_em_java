@@ -110,4 +110,16 @@ public class Project implements Serializable {
     public int hashCode() {
         return Objects.hash(id, name, status, createdAt, updatedAt, tasks);
     }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", tasks=" + tasks +
+                '}';
+    }
 }

@@ -109,4 +109,16 @@ public class Task implements Serializable {
     public int hashCode() {
         return Objects.hash(id, name, status, createdAt, updatedAt, project);
     }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", project=" + project +
+                '}';
+    }
 }
