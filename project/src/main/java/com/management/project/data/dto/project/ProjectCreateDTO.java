@@ -13,6 +13,8 @@ public class ProjectCreateDTO {
     private String name;
     private StatusEnum status;
 
+    public ProjectCreateDTO() {}
+
     public ProjectCreateDTO(String name, StatusEnum status) {
         this.name = name;
         this.status = status;

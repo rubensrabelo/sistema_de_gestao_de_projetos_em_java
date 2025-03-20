@@ -17,6 +17,8 @@ public class TaskCreateDTO {
     @NotNull
     private Long projectId;
 
+    public TaskCreateDTO() {}
+
     public TaskCreateDTO(String name, StatusEnum status, Long projectId) {
         this.name = name;
         this.status = status;

@@ -61,11 +61,4 @@ public class TaskController implements TaskControllerDocs {
         TaskResponseDTO response = service.update(id, dto);
         return ResponseEntity.ok().body(response);
     }
-
-    @DeleteMapping(value = "/{id}")
-    @Override
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
 }

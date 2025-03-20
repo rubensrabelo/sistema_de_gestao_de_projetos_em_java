@@ -9,6 +9,8 @@ public class TaskUpdateDTO {
     private String name;
     private StatusEnum status;
 
+    public TaskUpdateDTO() {}
+
     public TaskUpdateDTO(String name, StatusEnum status) {
         this.name = name;
         this.status = status;

@@ -99,16 +99,6 @@ public class TaskService {
         return dtoResponse;
     }
 
-    public void deleteById(Long id) {
-        try {
-            taskRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException("Task not found");
-        } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException(e.getMessage());
-        }
-    }
-
     private void updateData(Task entity, TaskUpdateDTO updatedData) {
         if(updatedData.getName() != null) {
             if(updatedData.getName().length() < 3 || updatedData.getName().length() > 100)
@@ -127,7 +117,5 @@ public class TaskService {
 
         TaskUpdateDTO dtoUpdated = new TaskUpdateDTO(dto.getName(), dto.getStatus());
         dto.add(linkTo(methodOn(TaskController.class).update(dto.getId(), dtoUpdated)).withRel("update").withType("PUT"));
-
-        dto.add(linkTo(methodOn(TaskController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
     }
 }

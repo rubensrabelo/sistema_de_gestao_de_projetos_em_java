@@ -9,6 +9,8 @@ public class ProjectUpdateDTO {
     private String name;
     private StatusEnum status;
 
+    public ProjectUpdateDTO() {}
+
     public ProjectUpdateDTO(String name, StatusEnum status) {
         this.name = name;
         this.status = status;

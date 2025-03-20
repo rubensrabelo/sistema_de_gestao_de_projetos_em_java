@@ -65,19 +65,4 @@ public interface TaskControllerDocs {
             }
     )
     ResponseEntity<TaskResponseDTO> update(@PathVariable("id") Long id, @RequestBody TaskUpdateDTO dtoUpdate);
-
-    @Operation(summary = "Deletes a Task",
-            description = "Deletes a specific task by their ID",
-            tags = {"Tasks"},
-            responses = {
-                    @ApiResponse(
-                            description = "No Content",
-                            responseCode = "204", content = @Content),
-                    @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
-                    @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
-                    @ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
-                    @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
-            }
-    )
-    ResponseEntity<Void> delete(@PathVariable("id") Long id);
 }
