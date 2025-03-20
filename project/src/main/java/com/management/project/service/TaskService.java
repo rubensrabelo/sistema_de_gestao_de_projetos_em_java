@@ -57,11 +57,15 @@ public class TaskService {
     }
 
    public TaskResponseDTO create(TaskCreateDTO dto) {
+       if(dto == null)
+           throw new RequiredObjectIsNullException();
+
         if(dto.getProjectId() == null) {
             throw new NullForeignKeyException("Project id is required");
         }
 
-        Project project = isProjectValid(dto.getProjectId());
+        Project project = projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         if(dto.getName() == null || dto.getName().isEmpty())
             throw new EmptyNameException("The name task cannot be null or blank.");
@@ -79,12 +83,10 @@ public class TaskService {
         return dtoResponse;
     }
 
-    private Project isProjectValid(Long projectId) {
-        return projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-    }
-
     public TaskResponseDTO update(Long id, TaskUpdateDTO updatedData) {
+        if(updatedData == null)
+            throw new RequiredObjectIsNullException();
+
         Task entity = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
