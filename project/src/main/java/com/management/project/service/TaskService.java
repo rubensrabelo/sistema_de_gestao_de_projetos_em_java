@@ -85,17 +85,10 @@ public class TaskService {
     }
 
     public TaskResponseDTO update(Long id, TaskUpdateDTO updatedData) {
-        if(updatedData.getName() == null || updatedData.getName().isEmpty())
-            throw new EmptyNameException("The name task cannot be null or blank.");
-
-        if(updatedData.getName().length() < 3 || updatedData.getName().length() > 100)
-            throw new InvalidNameSizeException("The name task must be between 3 and 100 characters.");
-
         Task entity = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
-        Task dataTask = modelMapper.map(updatedData, Task.class);
 
-        updateData(entity, dataTask);
+        updateData(entity, updatedData);
         taskRepository.save(entity);
 
         TaskResponseDTO dtoResponse = modelMapper.map(entity, TaskResponseDTO.class);
@@ -114,11 +107,14 @@ public class TaskService {
         }
     }
 
-    private void updateData(Task entity, Task dataProject) {
-        if(dataProject.getName() != null)
-            entity.setName(dataProject.getName());
-        if(dataProject.getStatus() != null)
-            entity.setStatus(dataProject.getStatus());
+    private void updateData(Task entity, TaskUpdateDTO updatedData) {
+        if(updatedData.getName() != null) {
+            if(updatedData.getName().length() < 3 || updatedData.getName().length() > 100)
+                throw new InvalidNameSizeException("The name task must be between 3 and 100 characters.");
+            entity.setName(updatedData.getName());
+        }
+        if(updatedData.getStatus() != null)
+            entity.setStatus(updatedData.getStatus());
     }
 
     private void addHateoasLinks(TaskResponseDTO dto) {

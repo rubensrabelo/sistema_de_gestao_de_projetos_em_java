@@ -1,5 +1,6 @@
 package com.management.project.data.dto.task;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.management.project.model.enums.StatusEnum;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -18,6 +19,9 @@ public class TaskResponseDTO extends RepresentationModel<TaskResponseDTO> implem
     private StatusEnum status;
     private Instant createdAt;
     private Instant updatedAt;
+
+    @JsonIgnore
+    private Long projectId;
 
     public TaskResponseDTO() {
     }
@@ -60,6 +64,14 @@ public class TaskResponseDTO extends RepresentationModel<TaskResponseDTO> implem
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 
     @Override
