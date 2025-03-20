@@ -1,31 +1,25 @@
-package com.management.project.model;
+package com.management.project.data.dto.collaborator;
 
 import com.management.project.model.enums.FunctionEnum;
-import jakarta.persistence.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Entity
-@Table(name = "tb_collaborators")
-public class Collaborator implements Serializable {
+public class CollaboratorResponseDTO extends RepresentationModel<CollaboratorResponseDTO> implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-
-    @Column(unique = true, nullable = false)
     private String email;
     private FunctionEnum function;
 
-    public Collaborator() {}
+    public CollaboratorResponseDTO() {}
 
-    public Collaborator(Long id, String name, String email, FunctionEnum function) {
+    public CollaboratorResponseDTO(Long id, String name, String email, FunctionEnum function) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -67,12 +61,13 @@ public class Collaborator implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Collaborator that = (Collaborator) o;
+        if (!super.equals(o)) return false;
+        CollaboratorResponseDTO that = (CollaboratorResponseDTO) o;
         return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(email, that.email) && function == that.function;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, function);
+        return Objects.hash(super.hashCode(), id, name, email, function);
     }
 }
