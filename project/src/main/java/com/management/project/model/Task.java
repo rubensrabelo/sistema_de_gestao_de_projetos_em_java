@@ -27,7 +27,6 @@ public class Task implements Serializable {
     private Instant updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
     private Project project;
 
     public Task() {
