@@ -82,13 +82,10 @@ public class ProjectService {
         if(updatedData == null)
             throw new RequiredObjectIsNullException();
 
-        if(updatedData.getName().length() < 3 || updatedData.getName().length() > 100)
-            throw new InvalidNameSizeException("The name field must be between 3 and 100 characters.");
-
         Project entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-        Project dataProject = modelMapper.map(updatedData, Project.class);
-        updateData(entity, dataProject);
+
+        updateData(entity, updatedData);
         repository.save(entity);
         ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
         addHateoasLinks(dtoResponse);
@@ -105,11 +102,14 @@ public class ProjectService {
         }
     }
 
-    private void updateData(Project entity, Project dataProject) {
-        if(dataProject.getName() != null)
-            entity.setName(dataProject.getName());
-        if(dataProject.getStatus() != null)
-            entity.setStatus(dataProject.getStatus());
+    private void updateData(Project entity, ProjectUpdateDTO updatedData) {
+        if(updatedData.getName() != null) {
+            if(updatedData.getName().length() < 3 || updatedData.getName().length() > 100)
+                throw new InvalidNameSizeException("The name field must be between 3 and 100 characters.");
+            entity.setName(updatedData.getName());
+        }
+        if(updatedData.getStatus() != null)
+            entity.setStatus(updatedData.getStatus());
     }
 
     private void addHateoasLinks(ProjectResponseDTO dto) {

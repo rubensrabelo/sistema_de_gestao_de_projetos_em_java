@@ -255,7 +255,6 @@ class ProjectServiceTest {
         ProjectUpdateDTO dtoUpdate = new ProjectUpdateDTO(dtoResponse.getName(), dtoResponse.getStatus());
 
         when(repository.findById(1L)).thenReturn(Optional.of(project));
-        when(modelMapper.map(dtoUpdate, Project.class)).thenReturn(project);
         when(repository.save(project)).thenReturn(project);
         when(modelMapper.map(project, ProjectResponseDTO.class)).thenReturn(dtoResponse);
 
@@ -278,7 +277,6 @@ class ProjectServiceTest {
         assertLinkExists(result, "delete", "/v1/projects/" + dtoResponse.getId(), "DELETE");
 
         verify(repository, times(1)).findById(1L);
-        verify(modelMapper, times(1)).map(dtoUpdate, Project.class);
         verify(repository, times(1)).save(project);
         verify(modelMapper, times(1)).map(project, ProjectResponseDTO.class);
     }
@@ -319,6 +317,10 @@ class ProjectServiceTest {
     @Test
     void testUpdateWithErrorSizeName() {
         ProjectUpdateDTO dtoUpdate = new ProjectUpdateDTO("Pr", StatusEnum.NOT_DONE);
+        Project project = new Project("Valid Name", StatusEnum.NOT_DONE);
+        project.setId(1L);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(project));
         Exception exception = assertThrows(
                 InvalidNameSizeException.class,
                 () -> service.update(1L, dtoUpdate)
