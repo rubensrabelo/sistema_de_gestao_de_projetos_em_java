@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -28,6 +30,15 @@ public class Task implements Serializable {
 
     @ManyToOne
     private Project project;
+
+    @ManyToMany
+    @JoinTable(
+            name = "task_collaborator",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "collaborator_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"task_id", "collaborator_id"})
+    )
+    private List<Collaborator> collaborators = new ArrayList<>();
 
     public Task() {
     }
@@ -98,6 +109,20 @@ public class Task implements Serializable {
         this.project = project;
     }
 
+    public List<Collaborator> getCollaborators() {
+        return collaborators;
+    }
+
+    public void addCollaborators(Collaborator collaborator) {
+        this.collaborators.add(collaborator);
+        collaborator.getTasks().add(this);
+    }
+
+    public void removeCollaborators(Collaborator collaborator) {
+        this.collaborators.remove(collaborator);
+        collaborator.getTasks().remove(this);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -108,17 +133,5 @@ public class Task implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, status, createdAt, updatedAt, project);
-    }
-
-    @Override
-    public String toString() {
-        return "Task{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", status=" + status +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", project=" + project +
-                '}';
     }
 }

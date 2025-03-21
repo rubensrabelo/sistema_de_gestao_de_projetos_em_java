@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -22,6 +24,9 @@ public class Collaborator implements Serializable {
     @Column(unique = true, nullable = false)
     private String email;
     private FunctionEnum function;
+
+    @ManyToMany(mappedBy = "collaborators")
+    private List<Task> tasks = new ArrayList<>();
 
     public Collaborator() {}
 
@@ -62,6 +67,20 @@ public class Collaborator implements Serializable {
 
     public void setFunction(FunctionEnum function) {
         this.function = function;
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public void addTasks(Task task) {
+        this.tasks.add(task);
+        task.getCollaborators().add(this);
+    }
+
+    public void removeTasks(Task task) {
+        this.tasks.remove(task);
+        task.getCollaborators().remove(this);
     }
 
     @Override
