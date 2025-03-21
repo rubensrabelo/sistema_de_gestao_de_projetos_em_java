@@ -6,9 +6,11 @@ import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.data.dto.task.TaskCreateDTO;
 import com.management.project.data.dto.task.TaskResponseDTO;
 import com.management.project.data.dto.task.TaskUpdateDTO;
+import com.management.project.model.Collaborator;
 import com.management.project.model.Project;
 import com.management.project.model.Task;
 import com.management.project.model.enums.StatusEnum;
+import com.management.project.repository.CollaboratorRepository;
 import com.management.project.repository.ProjectRepository;
 import com.management.project.repository.TaskRepository;
 import com.management.project.service.exceptions.*;
@@ -31,6 +33,7 @@ public class TaskService {
 
     private TaskRepository taskRepository;
     private ProjectRepository projectRepository;
+    private CollaboratorRepository collaboratorRepository;
     private ModelMapper modelMapper;
     PagedResourcesAssembler<ProjectResponseDTO> assembler;
     private EntityManager entityManager;
@@ -38,11 +41,13 @@ public class TaskService {
     public TaskService(
             TaskRepository taskRepository,
             ProjectRepository projectRepository,
+            CollaboratorRepository collaboratorRepository,
             ModelMapper modelMapper,
             PagedResourcesAssembler<ProjectResponseDTO> assembler
     ) {
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
+        this.collaboratorRepository = collaboratorRepository;
         this.modelMapper = modelMapper;
         this.assembler = assembler;
     }
@@ -81,6 +86,19 @@ public class TaskService {
         addHateoasLinks(dtoResponse);
 
         return dtoResponse;
+    }
+
+    public String assignCollaboratorToTask(Long taskId, Long collaboratorId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Collaborator not found"));
+
+        task.addCollaborators(collaborator);
+        taskRepository.save(task);
+
+        return "Collaborator: " + collaborator.getName() + " assigned to Task: " + task.getName();
     }
 
     public TaskResponseDTO update(Long id, TaskUpdateDTO updatedData) {
