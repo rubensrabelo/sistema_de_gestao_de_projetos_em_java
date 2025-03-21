@@ -1,10 +1,10 @@
 package com.management.project.controller;
 
-import com.management.project.controller.docs.ProjectControllerDocs;
-import com.management.project.data.dto.project.ProjectCreateDTO;
-import com.management.project.data.dto.project.ProjectResponseDTO;
-import com.management.project.data.dto.project.ProjectUpdateDTO;
-import com.management.project.service.ProjectService;
+import com.management.project.controller.docs.CollaboratorControllerDocs;
+import com.management.project.data.dto.collaborator.CollaboratorCreateDTO;
+import com.management.project.data.dto.collaborator.CollaboratorResponseDTO;
+import com.management.project.data.dto.collaborator.CollaboratorUpdateDTO;
+import com.management.project.service.CollaboratorService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,14 +23,14 @@ import java.net.URI;
 @RestController
 @RequestMapping("/v1/projects")
 @Tag(name = "Projects", description = "Endpoints for Managing Projects")
-public class CollaboratorController implements ProjectControllerDocs {
+public class CollaboratorController implements CollaboratorControllerDocs {
 
     @Autowired
-    private ProjectService service;
+    private CollaboratorService service;
 
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
     @Override
-    public ResponseEntity<PagedModel<EntityModel<ProjectResponseDTO>>> findAll(
+    public ResponseEntity<PagedModel<EntityModel<CollaboratorResponseDTO>>> findAll(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size,
             @RequestParam(value = "direction", defaultValue = "asc") String direction
@@ -42,7 +42,7 @@ public class CollaboratorController implements ProjectControllerDocs {
 
     @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
     @Override
-    public ResponseEntity<ProjectResponseDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<CollaboratorResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
@@ -51,8 +51,8 @@ public class CollaboratorController implements ProjectControllerDocs {
             consumes = {MediaType.APPLICATION_JSON_VALUE}
     )
     @Override
-    public ResponseEntity<ProjectResponseDTO> create(@RequestBody ProjectCreateDTO dto) {
-        ProjectResponseDTO response = service.create(dto);
+    public ResponseEntity<CollaboratorResponseDTO> create(@RequestBody CollaboratorCreateDTO dto) {
+        CollaboratorResponseDTO response = service.create(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(response.getId()).toUri();
         return ResponseEntity.created(uri).body(response);
@@ -64,8 +64,8 @@ public class CollaboratorController implements ProjectControllerDocs {
             consumes = {MediaType.APPLICATION_JSON_VALUE}
     )
     @Override
-    public ResponseEntity<ProjectResponseDTO> update(@PathVariable Long id, ProjectUpdateDTO dto) {
-        ProjectResponseDTO response = service.update(id, dto);
+    public ResponseEntity<CollaboratorResponseDTO> update(@PathVariable Long id, CollaboratorUpdateDTO dto) {
+        CollaboratorResponseDTO response = service.update(id, dto);
         return ResponseEntity.ok().body(response);
     }
 
