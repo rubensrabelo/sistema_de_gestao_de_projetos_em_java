@@ -1,17 +1,11 @@
 package com.management.project.service;
 
 import com.management.project.controller.CollaboratorController;
-import com.management.project.controller.ProjectController;
 import com.management.project.data.dto.collaborator.CollaboratorCreateDTO;
 import com.management.project.data.dto.collaborator.CollaboratorResponseDTO;
 import com.management.project.data.dto.collaborator.CollaboratorUpdateDTO;
-import com.management.project.data.dto.project.ProjectCreateDTO;
-import com.management.project.data.dto.project.ProjectResponseDTO;
-import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.model.Collaborator;
-import com.management.project.model.Project;
 import com.management.project.repository.CollaboratorRepository;
-import com.management.project.repository.ProjectRepository;
 import com.management.project.service.exceptions.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +18,9 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -77,10 +74,12 @@ public class CollaboratorService {
         if(dto.getName().length() < 3 || dto.getName().length() > 100)
             throw new InvalidNameSizeException("The name field must be between 3 and 100 characters.");
 
+        if(!isValidEmail(dto.getEmail()))
+            throw new InvalidEmailException("The email provided is invalid.");
 
         Collaborator entity = modelMapper.map(dto, Collaborator.class);
         repository.save(entity);
-        ProjectResponseDTO dtoResponse = modelMapper.map(entity, CollaboratorResponseDTO.class);
+        CollaboratorResponseDTO dtoResponse = modelMapper.map(entity, CollaboratorResponseDTO.class);
         addHateoasLinks(dtoResponse);
         return dtoResponse;
     }
@@ -103,7 +102,7 @@ public class CollaboratorService {
         try {
             repository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException("Project not found");
+            throw new ResourceNotFoundException("Collaborator not found");
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException(e.getMessage());
         }
@@ -117,8 +116,8 @@ public class CollaboratorService {
         }
 
         if(updatedData.getEmail() != null) {
-            if(updatedData.getEmail().length() > 100)
-                throw new InvalidNameSizeException("The email field must have a maximum of 150 characters.");
+            if(!isValidEmail(updatedData.getEmail()))
+                throw new InvalidEmailException("The email provided is invalid.");
             entity.setEmail(updatedData.getEmail());
         }
 
@@ -126,16 +125,23 @@ public class CollaboratorService {
             entity.setFunction(updatedData.getFunction());
     }
 
-    private void addHateoasLinks(ProjectResponseDTO dto) {
-        dto.add(linkTo(methodOn(ProjectController.class).findAll(0, 10, "desc")).withRel("findAll").withType("GET"));
-        dto.add(linkTo(methodOn(ProjectController.class).findById(dto.getId())).withSelfRel().withType("GET"));
+    private boolean isValidEmail(String email) {
+        final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\\\.[A-Za-z]{2,6}";
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
 
-        ProjectCreateDTO dtoCreated = new ProjectCreateDTO(dto.getName(), dto.getStatus());
-        dto.add(linkTo(methodOn(ProjectController.class).create(dtoCreated)).withRel("create").withType("POST"));
+    private void addHateoasLinks(CollaboratorResponseDTO dto) {
+        dto.add(linkTo(methodOn(CollaboratorController.class).findAll(0, 10, "desc")).withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(CollaboratorController.class).findById(dto.getId())).withSelfRel().withType("GET"));
 
-        ProjectUpdateDTO dtoUpdated = new ProjectUpdateDTO(dto.getName(), dto.getStatus());
-        dto.add(linkTo(methodOn(ProjectController.class).update(dto.getId(), dtoUpdated)).withRel("update").withType("PUT"));
+        CollaboratorCreateDTO dtoCreated = new CollaboratorCreateDTO(dto.getName(), dto.getEmail(), dto.getFunction());
+        dto.add(linkTo(methodOn(CollaboratorController.class).create(dtoCreated)).withRel("create").withType("POST"));
 
-        dto.add(linkTo(methodOn(ProjectController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
+        CollaboratorUpdateDTO dtoUpdated = new CollaboratorUpdateDTO(dto.getName(), dto.getEmail(), dto.getFunction());
+        dto.add(linkTo(methodOn(CollaboratorController.class).update(dto.getId(), dtoUpdated)).withRel("update").withType("PUT"));
+
+        dto.add(linkTo(methodOn(CollaboratorController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
     }
 }
