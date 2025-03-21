@@ -1,6 +1,5 @@
 package com.management.project.controller.docs;
 
-import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.task.TaskCreateDTO;
 import com.management.project.data.dto.task.TaskResponseDTO;
 import com.management.project.data.dto.task.TaskUpdateDTO;
@@ -21,7 +20,7 @@ public interface TaskControllerDocs {
                     @ApiResponse(
                             description = "Success",
                             responseCode = "200",
-                            content = @Content(schema = @Schema(implementation = ProjectResponseDTO.class))
+                            content = @Content(schema = @Schema(implementation = TaskResponseDTO.class))
                     ),
                     @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
                     @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
@@ -33,13 +32,13 @@ public interface TaskControllerDocs {
     ResponseEntity<TaskResponseDTO> findById(@PathVariable("id") Long id);
 
     @Operation(summary = "Adds a new Task",
-            description = "Adds a new task by passing in a JSON representation of the project.",
+            description = "Adds a new task by passing in a JSON representation of the task.",
             tags = {"Tasks"},
             responses = {
                     @ApiResponse(
                             description = "Success",
                             responseCode = "200",
-                            content = @Content(schema = @Schema(implementation = ProjectResponseDTO.class))
+                            content = @Content(schema = @Schema(implementation = TaskResponseDTO.class))
                     ),
                     @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
                     @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
@@ -49,13 +48,13 @@ public interface TaskControllerDocs {
     ResponseEntity<TaskResponseDTO> create(@RequestBody TaskCreateDTO dtoCreate);
 
     @Operation(summary = "Updates a task's information",
-            description = "Updates a task's information by passing in a JSON representation of the updated person.",
+            description = "Updates a task's information by passing in a JSON representation of the updated task.",
             tags = {"Tasks"},
             responses = {
                     @ApiResponse(
                             description = "Success",
                             responseCode = "200",
-                            content = @Content(schema = @Schema(implementation = ProjectResponseDTO.class))
+                            content = @Content(schema = @Schema(implementation = TaskResponseDTO.class))
                     ),
                     @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
                     @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),

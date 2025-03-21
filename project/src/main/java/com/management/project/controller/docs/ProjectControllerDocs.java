@@ -79,7 +79,7 @@ public interface ProjectControllerDocs {
     ResponseEntity<ProjectResponseDTO> create(@RequestBody ProjectCreateDTO dtoCreate);
 
     @Operation(summary = "Updates a project's information",
-            description = "Updates a project's information by passing in a JSON representation of the updated person.",
+            description = "Updates a project's information by passing in a JSON representation of the updated project.",
             tags = {"Projects"},
             responses = {
                     @ApiResponse(
