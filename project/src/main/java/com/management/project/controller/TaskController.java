@@ -2,6 +2,7 @@ package com.management.project.controller;
 
 import com.management.project.controller.docs.ProjectControllerDocs;
 import com.management.project.controller.docs.TaskControllerDocs;
+import com.management.project.data.dto.collaborator_task.CollaboratorTaskDTO;
 import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
@@ -37,6 +38,17 @@ public class TaskController implements TaskControllerDocs {
     @Override
     public ResponseEntity<TaskResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
+    }
+
+    @PostMapping(
+            path = "/assign-collaborator",
+            produces = {MediaType.APPLICATION_JSON_VALUE},
+            consumes = {MediaType.APPLICATION_JSON_VALUE}
+    )
+    @Override
+    public ResponseEntity<String> assignCollaborator(@RequestBody CollaboratorTaskDTO dto) {
+        String response = service.assignCollaboratorToTask(dto);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(

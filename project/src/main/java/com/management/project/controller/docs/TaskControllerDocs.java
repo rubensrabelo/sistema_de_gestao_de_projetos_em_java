@@ -1,5 +1,6 @@
 package com.management.project.controller.docs;
 
+import com.management.project.data.dto.collaborator_task.CollaboratorTaskDTO;
 import com.management.project.data.dto.task.TaskCreateDTO;
 import com.management.project.data.dto.task.TaskResponseDTO;
 import com.management.project.data.dto.task.TaskUpdateDTO;
@@ -46,6 +47,22 @@ public interface TaskControllerDocs {
             }
     )
     ResponseEntity<TaskResponseDTO> create(@RequestBody TaskCreateDTO dtoCreate);
+
+    @Operation(summary = "Assigns a collaborator to a task",
+            description = "Associates a collaborator with a specific task using their IDs.",
+            tags = {"Tasks"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(schema = @Schema(implementation = TaskResponseDTO.class))
+                    ),
+                    @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
+            }
+    )
+    ResponseEntity<String> assignCollaborator(@RequestBody CollaboratorTaskDTO dto);
 
     @Operation(summary = "Updates a task's information",
             description = "Updates a task's information by passing in a JSON representation of the updated task.",

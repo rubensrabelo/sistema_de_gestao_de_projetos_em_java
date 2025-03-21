@@ -1,6 +1,7 @@
 package com.management.project.service;
 
 import com.management.project.controller.TaskController;
+import com.management.project.data.dto.collaborator_task.CollaboratorTaskDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.data.dto.task.TaskCreateDTO;
@@ -88,11 +89,11 @@ public class TaskService {
         return dtoResponse;
     }
 
-    public String assignCollaboratorToTask(Long taskId, Long collaboratorId) {
-        Task task = taskRepository.findById(taskId)
+    public String assignCollaboratorToTask(CollaboratorTaskDTO dto) {
+        Task task = taskRepository.findById(dto.getTaskId())
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
+        Collaborator collaborator = collaboratorRepository.findById(dto.getCollaboratorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Collaborator not found"));
 
         task.addCollaborators(collaborator);
