@@ -1,14 +1,11 @@
 package com.management.project.data.dto.project;
 
-import com.management.project.data.dto.task.TaskResponseDTO;
 import com.management.project.model.enums.StatusEnum;
 import org.springframework.hateoas.RepresentationModel;
-import org.yaml.snakeyaml.representer.Represent;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 public class ProjectResponseDTO extends RepresentationModel<ProjectResponseDTO> implements Serializable {

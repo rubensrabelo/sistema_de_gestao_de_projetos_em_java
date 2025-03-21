@@ -2,7 +2,6 @@ package com.management.project.data.dto.collaborator;
 
 import com.management.project.model.enums.FunctionEnum;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class CollaboratorUpdateDTO {
