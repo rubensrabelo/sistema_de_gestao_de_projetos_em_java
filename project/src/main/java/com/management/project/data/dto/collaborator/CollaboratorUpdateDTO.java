@@ -3,29 +3,21 @@ package com.management.project.data.dto.collaborator;
 import com.management.project.model.enums.FunctionEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.springframework.hateoas.RepresentationModel;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.Objects;
+public class CollaboratorUpdateDTO {
 
-public class CollaboratorCreateDTO {
-
-    @NotBlank
     @Size(min = 3, max = 100)
     private String name;
 
-    @NotBlank
     @Email
     @Size(max = 150)
     private String email;
     private FunctionEnum function;
 
-    public CollaboratorCreateDTO() {}
+    public CollaboratorUpdateDTO() {}
 
-    public CollaboratorCreateDTO(String name, String email, FunctionEnum function) {
+    public CollaboratorUpdateDTO(String name, String email, FunctionEnum function) {
         this.name = name;
         this.email = email;
         this.function = function;
