@@ -77,6 +77,9 @@ public class CollaboratorService {
         if(!isValidEmail(dto.getEmail()))
             throw new InvalidEmailException("The email provided is invalid.");
 
+        if(repository.existsByEmail(dto.getEmail()))
+            throw new EmailAlreadyExistsException("The email " + dto.getEmail() + " is already in use.");
+
         Collaborator entity = modelMapper.map(dto, Collaborator.class);
         repository.save(entity);
         CollaboratorResponseDTO dtoResponse = modelMapper.map(entity, CollaboratorResponseDTO.class);
