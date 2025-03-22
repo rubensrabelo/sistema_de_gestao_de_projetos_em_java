@@ -21,8 +21,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/v1/projects")
-@Tag(name = "Projects", description = "Endpoints for Managing Projects")
+@RequestMapping("/v1/collaborators")
+@Tag(name = "Collaborators", description = "Endpoints for Managing Collaborators")
 public class CollaboratorController implements CollaboratorControllerDocs {
 
     @Autowired
