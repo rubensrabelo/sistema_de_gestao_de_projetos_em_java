@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/tasks")
@@ -46,8 +47,8 @@ public class TaskController implements TaskControllerDocs {
             consumes = {MediaType.APPLICATION_JSON_VALUE}
     )
     @Override
-    public ResponseEntity<String> assignCollaborator(@RequestBody CollaboratorTaskDTO dto) {
-        String response = service.assignCollaboratorToTask(dto);
+    public ResponseEntity<Map<String, String>> assignCollaborator(@RequestBody CollaboratorTaskDTO dto) {
+        Map<String, String> response = service.assignCollaboratorToTask(dto);
         return ResponseEntity.ok(response);
     }
 

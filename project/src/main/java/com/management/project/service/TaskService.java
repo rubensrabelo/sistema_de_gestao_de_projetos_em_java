@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -89,17 +91,24 @@ public class TaskService {
         return dtoResponse;
     }
 
-    public String assignCollaboratorToTask(CollaboratorTaskDTO dto) {
+    public Map<String, String> assignCollaboratorToTask(CollaboratorTaskDTO dto) {
         Task task = taskRepository.findById(dto.getTaskId())
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         Collaborator collaborator = collaboratorRepository.findById(dto.getCollaboratorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Collaborator not found"));
 
+        if (task.getCollaborators().contains(collaborator)) {
+            throw new DuplicateAssignmentException("Collaborator is already assigned to this task.");
+        }
+
         task.addCollaborators(collaborator);
         taskRepository.save(task);
 
-        return "Collaborator: " + collaborator.getName() + " assigned to Task: " + task.getName();
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Collaborator: " + collaborator.getName() + " assigned to Task: " + task.getName());
+
+        return response;
     }
 
     public TaskResponseDTO update(Long id, TaskUpdateDTO updatedData) {

@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Map;
+
 public interface TaskControllerDocs {
 
     @Operation(summary = "Finds a Task",
@@ -62,7 +64,7 @@ public interface TaskControllerDocs {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
             }
     )
-    ResponseEntity<String> assignCollaborator(@RequestBody CollaboratorTaskDTO dto);
+    ResponseEntity<Map<String, String>> assignCollaborator(@RequestBody CollaboratorTaskDTO dto);
 
     @Operation(summary = "Updates a task's information",
             description = "Updates a task's information by passing in a JSON representation of the updated task.",

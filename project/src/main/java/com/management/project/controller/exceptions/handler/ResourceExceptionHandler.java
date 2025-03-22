@@ -63,7 +63,15 @@ public class ResourceExceptionHandler {
 
     @ExceptionHandler(EmailAlreadyExistsException .class)
     public ResponseEntity<StandardError> emailAlreadyExistsException(EmailAlreadyExistsException e, HttpServletRequest request) {
-        String error = "Invalid email";
+        String error = "Email already exists";
+        HttpStatus status = HttpStatus.CONFLICT;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(DuplicateAssignmentException .class)
+    public ResponseEntity<StandardError> duplicateAssignmentException(DuplicateAssignmentException e, HttpServletRequest request) {
+        String error = "Duplication of collaborator in the task";
         HttpStatus status = HttpStatus.CONFLICT;
         StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
