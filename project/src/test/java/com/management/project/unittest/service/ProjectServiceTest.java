@@ -1,10 +1,11 @@
-package com.management.project.service;
+package com.management.project.unittest.service;
 
 import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.project.ProjectResponseWithTasksDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
-import com.management.project.mocks.MockProject;
+import com.management.project.service.ProjectService;
+import com.management.project.unittest.mocks.MockProject;
 import com.management.project.model.Project;
 import com.management.project.model.Task;
 import com.management.project.model.enums.StatusEnum;

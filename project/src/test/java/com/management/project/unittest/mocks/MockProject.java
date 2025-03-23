@@ -1,4 +1,4 @@
-package com.management.project.mocks;
+package com.management.project.unittest.mocks;
 
 import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.model.Project;
