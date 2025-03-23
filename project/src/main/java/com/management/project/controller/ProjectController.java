@@ -3,6 +3,7 @@ package com.management.project.controller;
 import com.management.project.controller.docs.ProjectControllerDocs;
 import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
+import com.management.project.data.dto.project.ProjectResponseWithTasksDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.service.ProjectService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,7 +43,7 @@ public class ProjectController implements ProjectControllerDocs {
 
     @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
     @Override
-    public ResponseEntity<ProjectResponseDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<ProjectResponseWithTasksDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 

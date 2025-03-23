@@ -2,6 +2,7 @@ package com.management.project.controller.docs;
 
 import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
+import com.management.project.data.dto.project.ProjectResponseWithTasksDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -60,7 +61,7 @@ public interface ProjectControllerDocs {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
             }
     )
-    ResponseEntity<ProjectResponseDTO> findById(@PathVariable("id") Long id);
+    ResponseEntity<ProjectResponseWithTasksDTO> findById(@PathVariable("id") Long id);
 
     @Operation(summary = "Adds a new Project",
             description = "Adds a new Project by passing in a JSON representation of the project.",

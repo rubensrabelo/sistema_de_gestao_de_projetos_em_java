@@ -1,8 +1,10 @@
 package com.management.project.service;
 
 import com.management.project.controller.ProjectController;
+import com.management.project.controller.TaskController;
 import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
+import com.management.project.data.dto.project.ProjectResponseWithTasksDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.model.Project;
 import com.management.project.repository.ProjectRepository;
@@ -52,12 +54,13 @@ public class ProjectService {
         return assembler.toModel(dtoResponse, findAllLinks);
     }
 
-    public ProjectResponseDTO findById(Long id) {
+    public ProjectResponseWithTasksDTO findById(Long id) {
         Project entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-        ProjectResponseDTO dtoResponse = modelMapper.map(entity, ProjectResponseDTO.class);
-        addHateoasLinks(dtoResponse);
-        return dtoResponse;
+        System.out.println(entity);
+        ProjectResponseWithTasksDTO dto = modelMapper.map(entity, ProjectResponseWithTasksDTO.class);
+        addHateoasLinks(dto);
+        return dto;
     }
 
     public ProjectResponseDTO create(ProjectCreateDTO dto) {
@@ -123,5 +126,31 @@ public class ProjectService {
         dto.add(linkTo(methodOn(ProjectController.class).update(dto.getId(), dtoUpdated)).withRel("update").withType("PUT"));
 
         dto.add(linkTo(methodOn(ProjectController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
+    }
+
+    private void addHateoasLinks(ProjectResponseWithTasksDTO dto) {
+        dto.add(linkTo(methodOn(ProjectController.class).findAll(0, 10, "desc"))
+                .withRel("findAll").withType("GET"));
+
+        dto.add(linkTo(methodOn(ProjectController.class).findById(dto.getId()))
+                .withSelfRel().withType("GET"));
+
+        ProjectCreateDTO dtoCreated = new ProjectCreateDTO(dto.getName(), dto.getStatus());
+        dto.add(linkTo(methodOn(ProjectController.class).create(dtoCreated))
+                .withRel("create").withType("POST"));
+
+        ProjectUpdateDTO dtoUpdated = new ProjectUpdateDTO(dto.getName(), dto.getStatus());
+        dto.add(linkTo(methodOn(ProjectController.class).update(dto.getId(), dtoUpdated))
+                .withRel("update").withType("PUT"));
+
+        dto.add(linkTo(methodOn(ProjectController.class).delete(dto.getId()))
+                .withRel("delete").withType("DELETE"));
+
+        if (dto.getTasks() != null) {
+            dto.getTasks().forEach(task ->
+                    task.add(linkTo(methodOn(TaskController.class).findById(task.getId()))
+                            .withSelfRel().withType("GET"))
+            );
+        }
     }
 }
