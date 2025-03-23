@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +28,7 @@ public class Project implements Serializable {
     private Instant updatedAt;
 
     @OneToMany(mappedBy = "project")
-    private List<Task> tasks;
+    private List<Task> tasks = new ArrayList<>();
 
     public Project() {
     }
@@ -93,10 +94,6 @@ public class Project implements Serializable {
         return tasks;
     }
 
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
-    }
-
     public void addTask(Task task) {
         tasks.add(task);
         task.setProject(this);
@@ -111,11 +108,11 @@ public class Project implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Project project = (Project) o;
-        return Objects.equals(id, project.id) && Objects.equals(name, project.name) && status == project.status && Objects.equals(createdAt, project.createdAt) && Objects.equals(updatedAt, project.updatedAt) && Objects.equals(tasks, project.tasks);
+        return Objects.equals(id, project.id) && Objects.equals(name, project.name) && status == project.status && Objects.equals(createdAt, project.createdAt) && Objects.equals(updatedAt, project.updatedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, status, createdAt, updatedAt, tasks);
+        return Objects.hash(id, name, status, createdAt, updatedAt);
     }
 }

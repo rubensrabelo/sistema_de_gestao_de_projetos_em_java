@@ -127,11 +127,11 @@ public class Task implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return Objects.equals(id, task.id) && Objects.equals(name, task.name) && status == task.status && Objects.equals(createdAt, task.createdAt) && Objects.equals(updatedAt, task.updatedAt) && Objects.equals(project, task.project);
+        return Objects.equals(id, task.id) && Objects.equals(name, task.name) && status == task.status && Objects.equals(createdAt, task.createdAt) && Objects.equals(updatedAt, task.updatedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, status, createdAt, updatedAt, project);
+        return Objects.hash(id, name, status, createdAt, updatedAt);
     }
 }

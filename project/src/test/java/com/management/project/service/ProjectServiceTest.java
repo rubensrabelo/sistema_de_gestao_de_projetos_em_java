@@ -2,9 +2,11 @@ package com.management.project.service;
 
 import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
+import com.management.project.data.dto.project.ProjectResponseWithTasksDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.mocks.MockProject;
 import com.management.project.model.Project;
+import com.management.project.model.Task;
 import com.management.project.model.enums.StatusEnum;
 import com.management.project.repository.ProjectRepository;
 import com.management.project.service.exceptions.*;
@@ -28,6 +30,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -126,10 +129,24 @@ class ProjectServiceTest {
     @Test
     void findById() {
         Project entity = input.mockEntity(1);
-        ProjectResponseDTO dtoResponse = input.mockDTO(1);
+
+        Task task = new Task("Task 01", StatusEnum.NOT_DONE, entity);
+        task.setId(1L);
+        task.setCreatedAt(Instant.now());
+        task.setUpdatedAt(Instant.now());
+
+        entity.addTask(task);
+
+
+        ProjectResponseWithTasksDTO dtoResponse = new ProjectResponseWithTasksDTO();
+        dtoResponse.setId(entity.getId());
+        dtoResponse.setName(entity.getName());
+        dtoResponse.setStatus(entity.getStatus());
+        dtoResponse.setCreatedAt(entity.getCreatedAt());
+        dtoResponse.setUpdatedAt(entity.getUpdatedAt());
 
         when(repository.findById(1L)).thenReturn(Optional.of(entity));
-        when(modelMapper.map(entity, ProjectResponseDTO.class)).thenReturn(dtoResponse);
+        when(modelMapper.map(entity, ProjectResponseWithTasksDTO.class)).thenReturn(dtoResponse);
 
         var result = service.findById(1L);
 
@@ -139,7 +156,6 @@ class ProjectServiceTest {
 
         assertEquals("ProjectDTO 1", result.getName());
         assertEquals(StatusEnum.NOT_DONE, result.getStatus());
-
         assertNotNull(result.getCreatedAt());
         assertNotNull(result.getUpdatedAt());
 
@@ -150,7 +166,14 @@ class ProjectServiceTest {
         assertLinkExists(result, "delete", "/v1/projects/" + dtoResponse.getId(), "DELETE");
 
         verify(repository, times(1)).findById(1L);
-        verify(modelMapper, times(1)).map(entity, ProjectResponseDTO.class);
+        verify(modelMapper, times(1)).map(entity, ProjectResponseWithTasksDTO.class);
+    }
+
+    private void assertLinkExists(ProjectResponseWithTasksDTO result, String rel, String href, String method) {
+        assertTrue(result.getLinks().stream().anyMatch(link ->
+                link.getRel().value().equals(rel) &&
+                        link.getHref().equals(href) &&
+                        link.getType().equals(method)));
     }
 
     @Test
