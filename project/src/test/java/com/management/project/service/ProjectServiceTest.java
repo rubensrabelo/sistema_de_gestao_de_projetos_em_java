@@ -137,7 +137,6 @@ class ProjectServiceTest {
 
         entity.addTask(task);
 
-
         ProjectResponseWithTasksDTO dtoResponse = new ProjectResponseWithTasksDTO();
         dtoResponse.setId(entity.getId());
         dtoResponse.setName(entity.getName());
@@ -154,7 +153,7 @@ class ProjectServiceTest {
         assertNotNull(result.getId());
         assertNotNull(result.getLinks());
 
-        assertEquals("ProjectDTO 1", result.getName());
+        assertEquals("Project 1", result.getName());
         assertEquals(StatusEnum.NOT_DONE, result.getStatus());
         assertNotNull(result.getCreatedAt());
         assertNotNull(result.getUpdatedAt());
@@ -167,13 +166,6 @@ class ProjectServiceTest {
 
         verify(repository, times(1)).findById(1L);
         verify(modelMapper, times(1)).map(entity, ProjectResponseWithTasksDTO.class);
-    }
-
-    private void assertLinkExists(ProjectResponseWithTasksDTO result, String rel, String href, String method) {
-        assertTrue(result.getLinks().stream().anyMatch(link ->
-                link.getRel().value().equals(rel) &&
-                        link.getHref().equals(href) &&
-                        link.getType().equals(method)));
     }
 
     @Test
@@ -398,6 +390,14 @@ class ProjectServiceTest {
     }
 
     private void assertLinkExists(ProjectResponseDTO dto, String rel, String href, String type) {
+        dto.getLinks().stream()
+                .anyMatch(link -> link.getRel().value().equals(rel)
+                        && link.getHref().endsWith(href)
+                        && link.getType().equals(type)
+                );
+    }
+
+    private void assertLinkExists(ProjectResponseWithTasksDTO dto, String rel, String href, String type) {
         dto.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals(rel)
                         && link.getHref().endsWith(href)
