@@ -1,11 +1,17 @@
 package com.management.project.unittest.mocks;
 
+import com.management.project.controller.CollaboratorController;
+import com.management.project.data.dto.collaborator.CollaboratorCreateDTO;
 import com.management.project.data.dto.collaborator.CollaboratorResponseDTO;
+import com.management.project.data.dto.collaborator.CollaboratorUpdateDTO;
 import com.management.project.model.Collaborator;
 import com.management.project.model.enums.FunctionEnum;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 public class MockCollaborator {
 
@@ -40,7 +46,7 @@ public class MockCollaborator {
         List<Collaborator> collaborators = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
-            Collaborator collaborator = createMockEntity(size);
+            Collaborator collaborator = createMockEntity(i);
             collaborators.add(collaborator);
         }
 
@@ -52,10 +58,10 @@ public class MockCollaborator {
 
         collaboratorDTO.setId((long) size);
         collaboratorDTO.setName("CollaboratorDTO " + size);
-
-        collaboratorDTO.setName("Collaborator " + size);
         collaboratorDTO.setEmail("collaborator" + size + "@gmail.com");
         collaboratorDTO.setFunction(createFunction(size));
+
+        addHateoasLinks(collaboratorDTO);
 
         return collaboratorDTO;
     }
@@ -64,7 +70,7 @@ public class MockCollaborator {
         List<CollaboratorResponseDTO> collaboratorDTOs = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
-            CollaboratorResponseDTO collaboratorDTO = createMockDTO(size);
+            CollaboratorResponseDTO collaboratorDTO = createMockDTO(i);
             collaboratorDTOs.add(collaboratorDTO);
         }
 
@@ -87,5 +93,18 @@ public class MockCollaborator {
         }
 
         return function;
+    }
+
+    private void addHateoasLinks(CollaboratorResponseDTO dto) {
+        dto.add(linkTo(methodOn(CollaboratorController.class).findAll(0, 10, "desc"))
+                .withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(CollaboratorController.class).findById(dto.getId()))
+                .withSelfRel().withType("GET"));
+        dto.add(linkTo(methodOn(CollaboratorController.class).create(new CollaboratorCreateDTO(dto.getName(), dto.getEmail(), dto.getFunction())))
+                .withRel("create").withType("POST"));
+        dto.add(linkTo(methodOn(CollaboratorController.class).update(dto.getId(), new CollaboratorUpdateDTO(dto.getName(), dto.getEmail(), dto.getFunction())))
+                .withRel("update").withType("PUT"));
+        dto.add(linkTo(methodOn(CollaboratorController.class).delete(dto.getId()))
+                .withRel("delete").withType("DELETE"));
     }
 }
