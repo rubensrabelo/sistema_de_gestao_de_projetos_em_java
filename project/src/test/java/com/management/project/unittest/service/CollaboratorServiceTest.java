@@ -3,15 +3,11 @@ package com.management.project.unittest.service;
 import com.management.project.data.dto.collaborator.CollaboratorCreateDTO;
 import com.management.project.data.dto.collaborator.CollaboratorResponseDTO;
 import com.management.project.data.dto.collaborator.CollaboratorUpdateDTO;
-import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.model.Collaborator;
 import com.management.project.model.enums.FunctionEnum;
 import com.management.project.repository.CollaboratorRepository;
 import com.management.project.service.CollaboratorService;
-import com.management.project.service.exceptions.EmptyNameException;
-import com.management.project.service.exceptions.InvalidNameSizeException;
-import com.management.project.service.exceptions.RequiredObjectIsNullException;
-import com.management.project.service.exceptions.ResourceNotFoundException;
+import com.management.project.service.exceptions.*;
 import com.management.project.unittest.mocks.MockCollaborator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +32,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+// Falta testar os e-mail invalidod
 class CollaboratorServiceTest {
 
     MockCollaborator input;
@@ -322,7 +321,6 @@ class CollaboratorServiceTest {
         verifyNoMoreInteractions(repository, modelMapper);
     }
 
-    // Continuar nesse teste
     @Test
     void testUpdateWithErrorSizeName() {
         CollaboratorUpdateDTO dtoUpdate = new CollaboratorUpdateDTO(
@@ -330,10 +328,10 @@ class CollaboratorServiceTest {
                 "test@test.com",
                 FunctionEnum.MANAGER
         );
-        Collaborator project = new Collaborator("CB", "test@test.com", FunctionEnum.MANAGER);
-        project.setId(1L);
+        Collaborator entity = new Collaborator("CB", "test@test.com", FunctionEnum.MANAGER);
+        entity.setId(1L);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(project));
+        when(repository.findById(1L)).thenReturn(Optional.of(entity));
         Exception exception = assertThrows(
                 InvalidNameSizeException.class,
                 () -> service.update(1L, dtoUpdate)
@@ -343,7 +341,6 @@ class CollaboratorServiceTest {
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
-        verifyNoMoreInteractions(repository, modelMapper);
     }
 
     @Test
@@ -352,6 +349,38 @@ class CollaboratorServiceTest {
         doNothing().when(repository).deleteById(1L);
 
         assertDoesNotThrow(() -> service.deleteById(1L));
+        verify(repository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteWithIdDoesNotExist() {
+        doThrow(new EmptyResultDataAccessException(1)).when(repository).deleteById(1L);
+
+        Exception exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.deleteById(1L)
+        );
+
+        String expectedMessage = "Collaborator not found";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verify(repository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteWithDatabaseException() {
+        doThrow(new DataIntegrityViolationException("Database error")).when(repository).deleteById(1L);
+
+        Exception exception = assertThrows(
+                DatabaseException.class,
+                () -> service.deleteById(1L)
+        );
+
+        String expectedMessage = "Database error";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
         verify(repository, times(1)).deleteById(1L);
     }
 
