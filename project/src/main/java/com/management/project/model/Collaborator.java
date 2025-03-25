@@ -30,8 +30,7 @@ public class Collaborator implements Serializable {
 
     public Collaborator() {}
 
-    public Collaborator(Long id, String name, String email, FunctionEnum function) {
-        this.id = id;
+    public Collaborator(String name, String email, FunctionEnum function) {
         this.name = name;
         this.email = email;
         this.function = function;
