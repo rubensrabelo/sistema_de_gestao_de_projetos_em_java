@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-// Falta testar os e-mail invalidod
 class CollaboratorServiceTest {
 
     MockCollaborator input;
@@ -251,6 +250,40 @@ class CollaboratorServiceTest {
     }
 
     @Test
+    void testCreateWhenEmailIsInvalid() {
+        CollaboratorCreateDTO dtoCreate = new CollaboratorCreateDTO(
+                "John Doe",
+                "invalid-email",
+                FunctionEnum.DEVELOPER
+        );
+
+        InvalidEmailException exception = assertThrows(
+                InvalidEmailException.class,
+                () -> service.create(dtoCreate)
+        );
+
+        assertEquals("The email provided is invalid.", exception.getMessage());
+    }
+
+    @Test
+    void testCreateWhenEmailAlreadyExists() {
+        CollaboratorCreateDTO dtoCreate = new CollaboratorCreateDTO(
+                "John Doe",
+                "existing@example.com",
+                FunctionEnum.DEVELOPER
+        );
+
+        when(repository.existsByEmail(dtoCreate.getEmail())).thenReturn(true);
+
+        EmailAlreadyExistsException exception = assertThrows(
+                EmailAlreadyExistsException.class,
+                () -> service.create(dtoCreate)
+        );
+
+        assertEquals("The email existing@example.com is already in use.", exception.getMessage());
+    }
+
+    @Test
     void update() {
         CollaboratorResponseDTO dtoResponse = input.mockDTO(1);
         Collaborator entity = input.mockEntity(1);
@@ -342,6 +375,26 @@ class CollaboratorServiceTest {
 
         assertTrue(actualMessage.contains(expectedMessage));
     }
+
+    @Test
+    void testUpdateWhenEmailIsInvalid() {
+        CollaboratorUpdateDTO dtoUpdate = new CollaboratorUpdateDTO(
+                "John Doe",
+                "invalid-email",
+                FunctionEnum.DEVELOPER
+        );
+        Collaborator existingEntity = new Collaborator();
+
+        when(repository.findById(1L)).thenReturn(Optional.of(existingEntity));
+
+        InvalidEmailException exception = assertThrows(
+                InvalidEmailException.class,
+                () -> service.update(1L, dtoUpdate)
+        );
+
+        assertEquals("The email provided is invalid.", exception.getMessage());
+    }
+
 
     @Test
     void deleteById() {
