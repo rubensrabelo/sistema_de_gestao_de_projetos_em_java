@@ -67,8 +67,8 @@ public class MockTask {
     private TaskResponseDTO createMockDTO(int size) {
         TaskResponseDTO taskDTO = new TaskResponseDTO();
 
+        taskDTO.setId((long) size);
         taskDTO.setName("TaskDTO " + size);
-
         StatusEnum status = createStatus(size);
         taskDTO.setStatus(status);
         taskDTO.setCreatedAt(Instant.now());
