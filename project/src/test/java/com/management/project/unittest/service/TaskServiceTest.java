@@ -1,11 +1,18 @@
 package com.management.project.unittest.service;
 
+import com.management.project.data.dto.collaborator.CollaboratorCreateDTO;
+import com.management.project.data.dto.collaborator.CollaboratorResponseDTO;
+import com.management.project.data.dto.task.TaskCreateDTO;
 import com.management.project.data.dto.task.TaskResponseDTO;
+import com.management.project.model.Collaborator;
+import com.management.project.model.Project;
 import com.management.project.model.Task;
+import com.management.project.model.enums.FunctionEnum;
 import com.management.project.model.enums.StatusEnum;
 import com.management.project.repository.ProjectRepository;
 import com.management.project.repository.TaskRepository;
 import com.management.project.service.TaskService;
+import com.management.project.service.exceptions.ResourceNotFoundException;
 import com.management.project.unittest.mocks.MockTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,7 +81,41 @@ class TaskServiceTest {
     }
 
     @Test
+    void testFindByIdWithIdDoesNotExist() {
+        when(taskRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> taskService.findById(1L)
+        );
+
+        String expectedMessage = "Task not found";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verify(taskRepository, times(1)).findById(1L);
+        verifyNoInteractions(modelMapper);
+    }
+
+    // Continuar nesse teste
+    @Test
     void create() {
+        TaskCreateDTO dtoCreate = new TaskCreateDTO("New Task", StatusEnum.DOING, 1L);
+        Task entity = new Task("New Task", StatusEnum.DOING, new Project());
+        TaskResponseDTO dtoResponse = new TaskResponseDTO();
+        dtoResponse.setId(1L);
+        dtoResponse.setName("New Task");
+        dtoResponse.setStatus(StatusEnum.DOING);
+
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(new Project()));
+        when(taskRepository.save(any(Task.class))).thenReturn(entity);
+        when(modelMapper.map(entity, TaskResponseDTO.class)).thenReturn(dtoResponse);
+
+        TaskResponseDTO response = taskService.create(dtoCreate);
+        assertNotNull(response);
+        assertEquals("New Task", response.getName());
+        assertTrue(response.getLinks().hasLink("self"));
     }
 
     @Test
