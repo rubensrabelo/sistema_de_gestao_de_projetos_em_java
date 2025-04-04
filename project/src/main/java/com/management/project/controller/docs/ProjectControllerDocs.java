@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Map;
+
 public interface ProjectControllerDocs {
 
     @Operation(summary = "Find All Projects",
@@ -44,6 +46,23 @@ public interface ProjectControllerDocs {
             @RequestParam(value = "size", defaultValue = "10") Integer size,
             @RequestParam(value = "direction", defaultValue = "asc") String direction
     );
+
+    @Operation(summary = "Counts all Projects",
+            description = "Returns the total number of projects",
+            tags = {"Projects"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(schema = @Schema(implementation = Object.class))
+                    ),
+                    @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
+                    @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
+            }
+    )
+    ResponseEntity<Map<String, Long>> countProjects();
 
     @Operation(summary = "Finds a Project",
             description = "Find a specific project by your ID",

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/projects")
@@ -39,6 +40,13 @@ public class ProjectController implements ProjectControllerDocs {
         var sortDirection = direction.equalsIgnoreCase("asc") ? Direction.ASC : Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "name"));
         return ResponseEntity.ok().body(service.findAll(pageable));
+    }
+
+    @GetMapping(value = "/count", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<String, Long>> countProjects() {
+        long countProducts = service.countProducts();
+        Map<String, Long> products = Map.of("products", countProducts);
+        return ResponseEntity.ok().body(products);
     }
 
     @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})

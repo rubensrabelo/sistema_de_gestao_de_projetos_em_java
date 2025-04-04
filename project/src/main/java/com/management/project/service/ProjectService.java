@@ -54,6 +54,10 @@ public class ProjectService {
         return assembler.toModel(dtoResponse, findAllLinks);
     }
 
+    public long countProducts() {
+        return repository.count();
+    }
+
     public ProjectResponseWithTasksDTO findById(Long id) {
         Project entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
