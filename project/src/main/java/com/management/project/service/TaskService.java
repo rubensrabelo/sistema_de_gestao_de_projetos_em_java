@@ -79,7 +79,7 @@ public class TaskService {
             throw new EmptyNameException("The name task cannot be null or blank.");
 
         if(dto.getName().length() < 3 || dto.getName().length() > 100)
-            throw new InvalidNameSizeException("The name task field must be between 3 and 100 characters.");
+            throw new InvalidNameSizeException("The name field must be between 3 and 100 characters.");
 
         Task entity = new Task(dto.getName(), dto.getStatus(), project);
 
@@ -130,7 +130,7 @@ public class TaskService {
     private void updateData(Task entity, TaskUpdateDTO updatedData) {
         if(updatedData.getName() != null) {
             if(updatedData.getName().length() < 3 || updatedData.getName().length() > 100)
-                throw new InvalidNameSizeException("The name task must be between 3 and 100 characters.");
+                throw new InvalidNameSizeException("The name must be between 3 and 100 characters.");
             entity.setName(updatedData.getName());
         }
         if(updatedData.getStatus() != null)

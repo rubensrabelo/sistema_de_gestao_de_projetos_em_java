@@ -15,7 +15,7 @@ import com.management.project.repository.CollaboratorRepository;
 import com.management.project.repository.ProjectRepository;
 import com.management.project.repository.TaskRepository;
 import com.management.project.service.TaskService;
-import com.management.project.service.exceptions.ResourceNotFoundException;
+import com.management.project.service.exceptions.*;
 import com.management.project.unittest.mocks.MockTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -144,6 +144,86 @@ class TaskServiceTest {
     }
 
     @Test
+    void testCreateWithNullTask() {
+        Exception exception = assertThrows(
+                RequiredObjectIsNullException.class,
+                () -> taskService.create(null)
+        );
+
+        String expectedMessage = "Its is not allowed to persist a null object";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verifyNoMoreInteractions(taskRepository, modelMapper);
+    }
+
+    @Test
+    void testCreateWithNullIdProject() {
+        TaskCreateDTO dtoCreate = new TaskCreateDTO("Task 01", StatusEnum.DOING, null);
+        Exception exception = assertThrows(
+                NullForeignKeyException.class,
+                () -> taskService.create(dtoCreate)
+        );
+
+        String expectedMessage = "Project id is required";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verifyNoMoreInteractions(taskRepository, modelMapper);
+    }
+
+    @Test
+    void testCreateWithIdProjectDoesNotExist() {
+        TaskCreateDTO dtoCreate = new TaskCreateDTO("Task 01", StatusEnum.DOING, 1L);
+
+        when(projectRepository.findById(dtoCreate.getProjectId())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> taskService.create(dtoCreate)
+        );
+
+        String expectedMessage = "Project not found";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verify(projectRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testCreateWithNullName() {
+        TaskCreateDTO dtoCreate = new TaskCreateDTO(null, StatusEnum.NOT_DONE, 1L);
+        when(projectRepository.findById(dtoCreate.getProjectId())).thenReturn(Optional.of(new Project()));
+        Exception exception = assertThrows(
+                EmptyNameException.class,
+                () -> taskService.create(dtoCreate)
+        );
+
+        String expectedMessage = "The name task cannot be null or blank.";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verifyNoMoreInteractions(taskRepository, modelMapper);
+    }
+
+    @Test
+    void testCreateWithErrorSizeName() {
+        TaskCreateDTO dtoCreate = new TaskCreateDTO("Tk", StatusEnum.NOT_DONE, 1L);
+        when(projectRepository.findById(dtoCreate.getProjectId())).thenReturn(Optional.of(new Project()));
+
+        Exception exception = assertThrows(
+                InvalidNameSizeException.class,
+                () -> taskService.create(dtoCreate)
+        );
+
+        String expectedMessage = "The name field must be between 3 and 100 characters.";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verifyNoMoreInteractions(taskRepository, modelMapper);
+    }
+
+    @Test
     void assignCollaboratorToTask() {
         Task entityTask = input.mockEntity(1);
         Collaborator entityCollaborator = new Collaborator(
@@ -163,6 +243,44 @@ class TaskServiceTest {
         assertTrue(entityTask.getCollaborators().contains(entityCollaborator));
 
         verify(taskRepository).save(entityTask);
+        verify(taskRepository, times(1)).findById(1L);
+        verify(collaboratorRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testAssignCollaboratorToTaskWithIdTaskDoesNotExist() {
+        CollaboratorTaskDTO dtoAssign = new CollaboratorTaskDTO(1L, 1L);
+
+        when(taskRepository.findById(dtoAssign.getTaskId())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> taskService.assignCollaboratorToTask(dtoAssign)
+        );
+
+        String expectedMessage = "Task not found";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verify(taskRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testAssignCollaboratorToTaskWithIdCollaboratorDoesNotExist() {
+        CollaboratorTaskDTO dtoAssign = new CollaboratorTaskDTO(1L, 1L);
+
+        when(taskRepository.findById(dtoAssign.getTaskId())).thenReturn(Optional.of(new Task()));
+        when(collaboratorRepository.findById(dtoAssign.getTaskId())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> taskService.assignCollaboratorToTask(dtoAssign)
+        );
+
+        String expectedMessage = "Collaborator not found";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
         verify(taskRepository, times(1)).findById(1L);
         verify(collaboratorRepository, times(1)).findById(1L);
     }
@@ -196,6 +314,44 @@ class TaskServiceTest {
         verify(taskRepository, times(1)).findById(1L);
         verify(taskRepository, times(1)).save(entity);
         verify(modelMapper, times(1)).map(entity, TaskResponseDTO.class);
+    }
+
+    @Test
+    void testUpdateWithIdDoesNotExist() {
+        TaskUpdateDTO dtoUpdate = new TaskUpdateDTO("Task Update", StatusEnum.NOT_DONE);
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> taskService.update(1L, dtoUpdate)
+        );
+
+        String expectedMessage = "Task not found";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verify(taskRepository, times(1)).findById(1L);
+        verifyNoMoreInteractions(taskRepository, modelMapper);
+    }
+
+    @Test
+    void testUpdateWithErrorSizeName() {
+        TaskUpdateDTO dtoUpdate = new TaskUpdateDTO("Tk", StatusEnum.NOT_DONE);
+        Task entity = input.mockEntity(1);
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(entity));
+
+        Exception exception = assertThrows(
+                InvalidNameSizeException.class,
+                () -> taskService.update(1L, dtoUpdate)
+        );
+
+        String expectedMessage = "The name must be between 3 and 100 characters.";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        verifyNoMoreInteractions(taskRepository, modelMapper);
     }
 
     private void assertLinkExists(TaskResponseDTO dto, String rel, String href, String type) {
