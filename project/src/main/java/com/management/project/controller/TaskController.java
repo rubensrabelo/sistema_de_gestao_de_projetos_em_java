@@ -1,25 +1,14 @@
 package com.management.project.controller;
 
-import com.management.project.controller.docs.ProjectControllerDocs;
 import com.management.project.controller.docs.TaskControllerDocs;
 import com.management.project.data.dto.collaborator_task.CollaboratorTaskDTO;
-import com.management.project.data.dto.project.ProjectCreateDTO;
-import com.management.project.data.dto.project.ProjectResponseDTO;
-import com.management.project.data.dto.project.ProjectUpdateDTO;
 import com.management.project.data.dto.task.TaskCollaboratorCountDTO;
 import com.management.project.data.dto.task.TaskCreateDTO;
 import com.management.project.data.dto.task.TaskResponseDTO;
 import com.management.project.data.dto.task.TaskUpdateDTO;
-import com.management.project.service.ProjectService;
 import com.management.project.service.TaskService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
