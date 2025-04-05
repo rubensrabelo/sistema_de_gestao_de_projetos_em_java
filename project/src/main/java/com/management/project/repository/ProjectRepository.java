@@ -18,6 +18,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                 FROM Project p
                 LEFT JOIN p.tasks t
                 GROUP BY p.id, p.name
+                ORDER BY COUNT(t) DESC
             """
     )
     List<ProjectTaskCountDTO> countTasksPerProject();
