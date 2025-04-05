@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CollaboratorControllerDocs {
 
@@ -64,6 +65,23 @@ public interface CollaboratorControllerDocs {
             }
     )
     ResponseEntity<CollaboratorResponseDTO> findById(@PathVariable("id") Long id);
+
+    @Operation(summary = "Counts all Collaborators",
+            description = "Returns the total number of collaborators",
+            tags = {"Collaborators"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(schema = @Schema(implementation = Object.class))
+                    ),
+                    @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
+                    @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
+            }
+    )
+    ResponseEntity<Map<String, Long>> countProjects();
 
     @Operation(summary = "Counts tasks per collaborator",
             description = "Returns the number of tasks assigned to each collaborator, including those with zero tasks",

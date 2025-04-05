@@ -21,6 +21,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/collaborators")
@@ -46,6 +47,14 @@ public class CollaboratorController implements CollaboratorControllerDocs {
     @Override
     public ResponseEntity<CollaboratorResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
+    }
+
+    @GetMapping(value = "/count", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Override
+    public ResponseEntity<Map<String, Long>> countProjects() {
+        Long result = service.countCollaborators();
+        Map<String, Long> collaborators = Map.of("collaborators", result);
+        return ResponseEntity.ok().body(collaborators);
     }
 
     @GetMapping(value = "/task-count", produces = {MediaType.APPLICATION_JSON_VALUE})

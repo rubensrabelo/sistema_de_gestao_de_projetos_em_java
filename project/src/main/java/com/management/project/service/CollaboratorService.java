@@ -66,6 +66,10 @@ public class CollaboratorService {
         return dtoResponse;
     }
 
+    public long countCollaborators() {
+        return repository.count();
+    }
+
     public List<CollaboratorTaskCount> countTasksPerCollaborator() {
         return repository.countTasksPerCollaborator();
     }
