@@ -6,6 +6,7 @@ import com.management.project.data.dto.collaborator_task.CollaboratorTaskDTO;
 import com.management.project.data.dto.project.ProjectCreateDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
+import com.management.project.data.dto.task.TaskCollaboratorCountDTO;
 import com.management.project.data.dto.task.TaskCreateDTO;
 import com.management.project.data.dto.task.TaskResponseDTO;
 import com.management.project.data.dto.task.TaskUpdateDTO;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -40,6 +42,18 @@ public class TaskController implements TaskControllerDocs {
     public ResponseEntity<TaskResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
+
+    @GetMapping(value = "/projects/{projectId}", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Override
+    public ResponseEntity<List<TaskCollaboratorCountDTO>> countCollaboratorsPerTaskByProjectId(
+            @PathVariable("projectId") Long projectId
+    ) {
+        List<TaskCollaboratorCountDTO> result = service.countCollaboratorsPerTaskByProjectId(projectId);
+        if(result.isEmpty())
+            return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body(result);
+    }
+
 
     @PostMapping(
             path = "/assign-collaborator",

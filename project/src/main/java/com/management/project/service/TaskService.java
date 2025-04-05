@@ -4,6 +4,7 @@ import com.management.project.controller.TaskController;
 import com.management.project.data.dto.collaborator_task.CollaboratorTaskDTO;
 import com.management.project.data.dto.project.ProjectResponseDTO;
 import com.management.project.data.dto.project.ProjectUpdateDTO;
+import com.management.project.data.dto.task.TaskCollaboratorCountDTO;
 import com.management.project.data.dto.task.TaskCreateDTO;
 import com.management.project.data.dto.task.TaskResponseDTO;
 import com.management.project.data.dto.task.TaskUpdateDTO;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -62,6 +64,12 @@ public class TaskService {
         TaskResponseDTO dtoResponse = modelMapper.map(entity, TaskResponseDTO.class);
         addHateoasLinks(dtoResponse);
         return dtoResponse;
+    }
+
+    public List<TaskCollaboratorCountDTO> countCollaboratorsPerTaskByProjectId(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+        return taskRepository.countCollaboratorsPerTaskByProjectId(projectId);
     }
 
    public TaskResponseDTO create(TaskCreateDTO dto) {
