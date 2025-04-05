@@ -3,6 +3,7 @@ package com.management.project.controller;
 import com.management.project.controller.docs.CollaboratorControllerDocs;
 import com.management.project.data.dto.collaborator.CollaboratorCreateDTO;
 import com.management.project.data.dto.collaborator.CollaboratorResponseDTO;
+import com.management.project.data.dto.collaborator.CollaboratorTaskCount;
 import com.management.project.data.dto.collaborator.CollaboratorUpdateDTO;
 import com.management.project.service.CollaboratorService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/collaborators")
@@ -44,6 +46,15 @@ public class CollaboratorController implements CollaboratorControllerDocs {
     @Override
     public ResponseEntity<CollaboratorResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
+    }
+
+    @GetMapping(value = "/task-count", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Override
+    public ResponseEntity<List<CollaboratorTaskCount>> countTasksPerCollaborator() {
+        List<CollaboratorTaskCount> result = service.countTasksPerCollaborator();
+        if(result.isEmpty())
+            return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body(result);
     }
 
     @PostMapping(

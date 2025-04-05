@@ -2,6 +2,7 @@ package com.management.project.controller.docs;
 
 import com.management.project.data.dto.collaborator.CollaboratorCreateDTO;
 import com.management.project.data.dto.collaborator.CollaboratorResponseDTO;
+import com.management.project.data.dto.collaborator.CollaboratorTaskCount;
 import com.management.project.data.dto.collaborator.CollaboratorUpdateDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 public interface CollaboratorControllerDocs {
 
@@ -61,6 +64,24 @@ public interface CollaboratorControllerDocs {
             }
     )
     ResponseEntity<CollaboratorResponseDTO> findById(@PathVariable("id") Long id);
+
+    @Operation(summary = "Counts tasks per collaborator",
+            description = "Returns the number of tasks assigned to each collaborator, including those with zero tasks",
+            tags = {"Collaborators"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = CollaboratorTaskCount.class)))
+                    ),
+                    @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
+                    @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
+            }
+    )
+    ResponseEntity<List<CollaboratorTaskCount>> countTasksPerCollaborator();
+
 
     @Operation(summary = "Adds a new Collaborator",
             description = "Adds a new Collaborator by passing in a JSON representation of the project.",

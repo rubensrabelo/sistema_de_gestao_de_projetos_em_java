@@ -3,6 +3,7 @@ package com.management.project.service;
 import com.management.project.controller.CollaboratorController;
 import com.management.project.data.dto.collaborator.CollaboratorCreateDTO;
 import com.management.project.data.dto.collaborator.CollaboratorResponseDTO;
+import com.management.project.data.dto.collaborator.CollaboratorTaskCount;
 import com.management.project.data.dto.collaborator.CollaboratorUpdateDTO;
 import com.management.project.model.Collaborator;
 import com.management.project.repository.CollaboratorRepository;
@@ -19,6 +20,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,6 +64,10 @@ public class CollaboratorService {
         CollaboratorResponseDTO dtoResponse = modelMapper.map(entity, CollaboratorResponseDTO.class);
         addHateoasLinks(dtoResponse);
         return dtoResponse;
+    }
+
+    public List<CollaboratorTaskCount> countTasksPerCollaborator() {
+        return repository.countTasksPerCollaborator();
     }
 
     public CollaboratorResponseDTO create(CollaboratorCreateDTO dto) {
