@@ -1,9 +1,6 @@
 package com.management.project.controller.docs;
 
-import com.management.project.data.dto.project.ProjectCreateDTO;
-import com.management.project.data.dto.project.ProjectResponseDTO;
-import com.management.project.data.dto.project.ProjectResponseWithTasksDTO;
-import com.management.project.data.dto.project.ProjectUpdateDTO;
+import com.management.project.data.dto.project.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ProjectControllerDocs {
@@ -63,6 +61,23 @@ public interface ProjectControllerDocs {
             }
     )
     ResponseEntity<Map<String, Long>> countProjects();
+
+    @Operation(summary = "Counts tasks per project",
+            description = "Returns the number of tasks for each project, including those with zero tasks",
+            tags = {"Projects"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProjectTaskCountDTO.class)))
+                    ),
+                    @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
+                    @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
+            }
+    )
+    ResponseEntity<List<ProjectTaskCountDTO>> countTasksPerProject();
 
     @Operation(summary = "Finds a Project",
             description = "Find a specific project by your ID",

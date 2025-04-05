@@ -2,10 +2,7 @@ package com.management.project.service;
 
 import com.management.project.controller.ProjectController;
 import com.management.project.controller.TaskController;
-import com.management.project.data.dto.project.ProjectCreateDTO;
-import com.management.project.data.dto.project.ProjectResponseDTO;
-import com.management.project.data.dto.project.ProjectResponseWithTasksDTO;
-import com.management.project.data.dto.project.ProjectUpdateDTO;
+import com.management.project.data.dto.project.*;
 import com.management.project.model.Project;
 import com.management.project.repository.ProjectRepository;
 import com.management.project.service.exceptions.*;
@@ -20,6 +17,9 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -56,6 +56,10 @@ public class ProjectService {
 
     public long countProducts() {
         return repository.count();
+    }
+
+    public List<ProjectTaskCountDTO> countTasksPerProject() {
+        return repository.countTasksPerProject();
     }
 
     public ProjectResponseWithTasksDTO findById(Long id) {

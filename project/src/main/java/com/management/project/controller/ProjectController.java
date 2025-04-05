@@ -1,10 +1,7 @@
 package com.management.project.controller;
 
 import com.management.project.controller.docs.ProjectControllerDocs;
-import com.management.project.data.dto.project.ProjectCreateDTO;
-import com.management.project.data.dto.project.ProjectResponseDTO;
-import com.management.project.data.dto.project.ProjectResponseWithTasksDTO;
-import com.management.project.data.dto.project.ProjectUpdateDTO;
+import com.management.project.data.dto.project.*;
 import com.management.project.service.ProjectService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -43,10 +41,20 @@ public class ProjectController implements ProjectControllerDocs {
     }
 
     @GetMapping(value = "/count", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Override
     public ResponseEntity<Map<String, Long>> countProjects() {
         long countProducts = service.countProducts();
         Map<String, Long> products = Map.of("products", countProducts);
         return ResponseEntity.ok().body(products);
+    }
+
+    @GetMapping(value = "/task-count", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Override
+    public ResponseEntity<List<ProjectTaskCountDTO>> countTasksPerProject() {
+        List<ProjectTaskCountDTO> result = service.countTasksPerProject();
+        if(result.isEmpty())
+            return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body(result);
     }
 
     @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
